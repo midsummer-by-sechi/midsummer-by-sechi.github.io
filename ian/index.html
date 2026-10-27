@@ -1,0 +1,763 @@
+<!doctype html><html lang="ko"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>이안의 SNS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Playfair+Display:ital,wght@1,600&display=swap">
+<style id="app-style">
+/* Layout: a single phone-width app column (max 480px): sticky top bar, scrolling view (home feed / search / profile / me), fixed bottom tab bar. */
+:root{
+  --bg:#ffffff; --fg:#14161b; --muted:#6c7079; --line:#e6e7eb; --soft:#f2f3f5;
+  --accent:#1d6f8a; --ring:#e8735a; --heart:#e5484d; --navy:#1f3b8f; --baby:#a8d5f7; --dm:#3d6be0;
+  --overlay:rgba(10,12,18,.62); --glass:rgba(255,255,255,.72); --glass-line:rgba(0,0,0,.06); --glass-on:rgba(0,0,0,.07);
+  --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
+  --tab:54px;
+  --font:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+  --logo:"Playfair Display",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d0f13; --fg:#eceef2; --muted:#9097a3; --line:#252930; --soft:#181b21;
+  --accent:#4cb3cf; --ring:#f08a70; --heart:#ff5c63; --navy:#9db8ff; --dm:#5b86f0; --overlay:rgba(0,0,0,.72); --glass:rgba(28,30,36,.72); --glass-line:rgba(255,255,255,.08); --glass-on:rgba(255,255,255,.12); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0f13; --fg:#eceef2; --muted:#9097a3; --line:#252930; --soft:#181b21;
+  --accent:#4cb3cf; --ring:#f08a70; --heart:#ff5c63; --navy:#9db8ff; --dm:#5b86f0; --overlay:rgba(0,0,0,.72); --glass:rgba(28,30,36,.72); --glass-line:rgba(255,255,255,.08); --glass-on:rgba(255,255,255,.12); color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+*{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shell{max-width:480px;margin:0 auto;padding-bottom:calc(var(--tab) + 48px + env(safe-area-inset-bottom,0px))}
+@media (min-width:520px){.shell{border-inline:1px solid var(--line);min-height:100vh}}
+.pad{padding-left:var(--gl);padding-right:var(--gr)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);height:52px;display:flex;align-items:center;gap:6px;padding-left:var(--gl);padding-right:var(--gr)}
+.top.line{border-bottom:1px solid var(--line)}
+.wordmark{font-family:var(--logo);font-style:italic;font-weight:600;font-size:27px;letter-spacing:-.01em;background:none;border:0;padding:0;line-height:1;color:var(--fg);display:flex;align-items:center;gap:4px}
+.wordmark small{font-family:var(--font);font-style:normal;font-size:14px;font-weight:400;opacity:.8}
+.top.center{display:grid;grid-template-columns:1fr auto 1fr}
+.top.center .tl{display:flex;justify-content:flex-start}
+.top.center .tr{display:flex;justify-content:flex-end;align-items:center;gap:2px}
+.hasdot{position:relative}
+.rdot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--heart);border:1.5px solid var(--bg)}
+.top h1{font-size:17px;font-weight:700;margin:0 auto 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{background:none;border:0;padding:6px;color:var(--fg);display:grid;place-items:center;border-radius:8px}
+.deco{padding:6px;display:grid;place-items:center;color:var(--fg)}
+.pill{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:500;margin-right:4px}
+.pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--heart)}
+.btn:disabled{opacity:.5;cursor:default}
+.mention{color:var(--navy);text-decoration:none;font-weight:500}
+.uname{background:none;border:0;padding:0;font-weight:700;color:var(--fg);text-align:left}
+/* stories */
+.stories{display:flex;gap:14px;overflow-x:auto;padding:8px var(--gr) 12px var(--gl);border-bottom:1px solid var(--line);scrollbar-width:none}
+.stories::-webkit-scrollbar{display:none}
+.story{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:0;padding:0;width:74px}
+.story .lbl{font-size:11.5px;max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ring{position:relative;width:72px;height:72px;border-radius:50%;padding:3px;background:linear-gradient(45deg,#ffc06b,#ff7a59 45%,#e0569a);display:grid;place-items:center}
+.ring>.av{box-shadow:0 0 0 3px var(--bg)}
+.ring.none{background:none}
+.ring.none>.av{box-shadow:none}
+.badge{position:absolute;right:0;bottom:0;width:22px;height:22px;border-radius:50%;background:var(--fg);color:var(--bg);border:2.5px solid var(--bg);display:grid;place-items:center;font-size:14px;font-weight:700;line-height:1}
+.av{border-radius:50%;object-fit:cover;background:var(--soft);display:grid;place-items:center;font-weight:700;color:#fff;overflow:hidden;flex:0 0 auto}
+.av.me{background:var(--baby)}
+/* feed */
+.card{border-bottom:1px solid var(--line);padding-bottom:12px}
+.ch{display:flex;align-items:center;gap:10px;padding:10px var(--gr) 10px var(--gl)}
+.ch .h{font-weight:700;font-size:13.5px;line-height:1.2}
+.ch .loc{font-size:12px;color:var(--muted);line-height:1.3}
+.ch .x{margin-left:auto}
+.media{position:relative;aspect-ratio:4/5;max-width:100%;background:#000}
+.media img{width:100%;height:100%;object-fit:cover;display:block}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.85);color:#111;font-size:17px;display:grid;place-items:center}
+.nav.l{left:10px}.nav.r{right:10px}
+.count{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;border-radius:999px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:4px;justify-content:center;padding-top:8px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent)}
+.acts{display:flex;gap:14px;padding:8px var(--gr) 4px var(--gl);align-items:center}
+.acts button{background:none;border:0;padding:0;color:var(--fg);display:grid}
+.acts .liked{color:var(--heart)}
+.pb{padding:0 var(--gr) 0 var(--gl)}
+.likes{font-weight:700;font-variant-numeric:tabular-nums}
+.cap{white-space:pre-wrap;word-break:break-word;margin:3px 0}
+.date{color:var(--muted);font-size:12px;margin-top:4px}
+.more{background:none;border:0;padding:0;color:var(--muted);font-size:13.5px;margin-top:2px;display:block}
+.cm{display:flex;gap:6px;align-items:flex-start;margin-top:4px}
+.cm p{margin:0;flex:1;min-width:0;white-space:pre-wrap;word-break:break-word}
+.cm .del{background:none;border:0;color:var(--muted);font-size:12px;padding:0 2px}
+/* profile */
+.prof{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;padding-top:14px;padding-bottom:10px}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.counts>*{background:none;border:0;padding:0;color:var(--fg)}
+.counts b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.counts small{color:var(--muted);font-size:12.5px}
+.who{padding-bottom:12px}
+.who .nm{font-weight:700}
+.who .bio{white-space:pre-wrap;word-break:break-word;margin:2px 0 0}
+.who .lnk{color:var(--navy);text-decoration:none;word-break:break-all}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-bottom:14px}
+.pbtn{border:0;border-radius:8px;background:var(--soft);padding:7px 0;font-size:13px;font-weight:600;text-align:center;color:var(--fg)}
+.tabline{border-top:1px solid var(--line);display:flex;justify-content:center;padding-block:10px;color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.tile{position:relative;aspect-ratio:3/4;max-width:100%;border:0;padding:0;background:var(--soft);overflow:hidden}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .multi{position:absolute;top:6px;right:6px;color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.tile.new{display:grid;place-items:center;color:var(--muted);border:1.5px dashed var(--line);background:none;font-size:13px;text-align:center}
+.empty{color:var(--muted);text-align:center;padding:40px 16px}
+.empty .cam{width:62px;height:62px;border:2px solid var(--fg);border-radius:50%;display:grid;place-items:center;margin:0 auto 10px;color:var(--fg)}
+.empty b{display:block;color:var(--fg);font-size:18px;margin-bottom:4px}
+/* story viewer */
+.ring.seen{background:#c7c9ce}
+.ring.nost{background:none}
+.ring.nost>.av{box-shadow:0 0 0 1px var(--line)}
+.sv{position:fixed;inset:0;z-index:40;background:#000;display:flex;justify-content:center;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.sv .st{position:relative;width:100%;max-width:480px;height:100%;background:#111;overflow:hidden;cursor:pointer}
+.sv .simg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.sv .st::before{content:"";position:absolute;inset:0 0 auto;height:120px;background:linear-gradient(rgba(0,0,0,.45),transparent);z-index:1;pointer-events:none}
+.sv .bars{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:8px;right:8px;display:flex;gap:3px;z-index:2;transition:opacity .2s}
+.sv .bars i{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden}
+.sv .bars i b{display:block;height:100%;width:0;background:#fff}
+.sv .shd{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:12px;right:6px;display:flex;align-items:center;gap:8px;color:#fff;z-index:2;font-size:14px;transition:opacity .2s}
+.sv .shd b{font-weight:600}
+.sv .shd small{opacity:.75}
+.sv .sx{margin-left:auto;background:none;border:0;color:#fff;font-size:30px;line-height:1;padding:4px 10px}
+.sv .stxt{position:absolute;left:18px;right:18px;bottom:16%;text-align:center;z-index:2;pointer-events:none;transition:opacity .2s}
+.sv .stxt span{background:rgba(0,0,0,.5);color:#fff;padding:5px 12px;border-radius:8px;font-size:18px;font-weight:600;line-height:1.6;white-space:pre-wrap;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.sv.hold .bars,.sv.hold .shd{opacity:0}
+.sedit{display:grid;gap:10px}
+.sitem{display:grid;grid-template-columns:64px 1fr;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px}
+.sitem img{width:64px;height:100px;object-fit:cover;border-radius:6px}
+.sitem .sf{display:grid;gap:6px}
+.sitem .sb{display:flex;gap:6px;flex-wrap:wrap}
+/* explore + notifications */
+.xgrid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:calc(min(480px,100vw)/3*1.33);grid-auto-flow:dense;gap:2px}
+.xgrid .tile{aspect-ratio:auto;height:100%}
+.xgrid .tile.tall{grid-row:span 2}
+.cancel{background:none;border:0;padding:6px 2px 6px 8px;font-size:15px;font-weight:600;color:var(--fg)}
+.nrow{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:9px var(--gr) 9px var(--gl);text-align:left;color:var(--fg)}
+.nrow .nt{flex:1;min-width:0;font-size:14px;line-height:1.4;word-break:break-word}
+.nrow .nt small{color:var(--muted);font-size:13px;margin-left:4px}
+.nrow .th{width:44px;height:44px;border-radius:6px;object-fit:cover;flex:0 0 auto}
+.music{font-size:12px;line-height:1.3;display:flex;align-items:center;gap:4px}
+/* search + lists */
+.sbox{flex:1;display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:10px;padding:0 12px;height:38px;color:var(--muted)}
+.sbox input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:15px;color:var(--fg)}
+.sec{font-weight:700;font-size:15px;padding-top:14px;padding-bottom:6px}
+.row{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:8px var(--gr) 8px var(--gl);text-align:left;color:var(--fg)}
+.row .t{min-width:0;flex:1}
+.row .t b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .t span{display:block;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .tag{border-radius:8px;background:var(--soft);padding:5px 12px;font-size:13px;font-weight:600}
+/* tab bar */
+.tabbar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(440px,calc(100% - 32px));z-index:12;background:var(--glass);backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);border:1px solid var(--glass-line);border-radius:34px;box-shadow:0 8px 28px -10px rgba(0,0,0,.28);display:flex;justify-content:space-between;align-items:center;height:64px;padding:0 8px}
+.tabbar .ib,.tabbar .deco{padding:0;width:62px;height:48px;border-radius:24px;display:grid;place-items:center}
+.tabbar .ib.cur{background:var(--glass-on)}
+.tabme{width:28px;height:28px;border-radius:50%;background:var(--baby);display:block;box-shadow:0 0 0 2px var(--bg)}
+.on .tabme{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--fg)}
+.tabav{display:inline-flex;border-radius:50%;box-shadow:0 0 0 2px var(--bg)}.tabav .av{width:28px!important;height:28px!important;font-size:12px!important}
+.on .tabav{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--fg)}
+.sv .sbg{position:absolute;inset:0}
+.row.unread .t b,.row.unread .t span{font-weight:700;color:var(--fg)}
+.row .udot{width:9px;height:9px;border-radius:50%;background:#3797f0;margin-left:auto;flex:none}
+.unbar{display:flex;gap:8px;align-items:center;justify-content:center;padding:8px 12px;font-size:13px;color:var(--muted)}
+.sv .shcard{position:absolute;left:50%;top:50%;width:58%;aspect-ratio:9/16;transform:translate(-50%,-50%);border-radius:14px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.35);z-index:1;background:#222}
+.shcard>img,.shcard>.shbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shcard .shtx{position:absolute;left:10px;right:10px;top:50%;transform:translateY(-50%);text-align:center;color:#fff;font-weight:700;font-size:17px;white-space:pre-wrap;line-height:1.5;word-break:keep-all}
+.shcard .shtx.low{top:auto;bottom:12%;transform:none}
+.shcard .shtx.low span{background:rgba(0,0,0,.5);padding:3px 8px;border-radius:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.shcard .mention{color:#fff;background:rgba(255,255,255,.25);border-radius:5px;padding:0 4px;text-decoration:none}
+.shcard .shby{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:6px;align-items:center;color:#fff;font-size:12px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.shcard .shby .av{box-shadow:0 0 0 1.5px #fff}
+.sv .stxt.share{bottom:8%}
+.sitem .sth.sh{position:relative;padding:0}.sitem .sth.sh i{position:absolute;left:12px;right:12px;top:18px;bottom:18px;border-radius:5px;transform:rotate(-3deg);background-size:cover;background-position:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}.sitem .sth.sh b{position:absolute;bottom:2px;left:0;right:0;font-size:10px}
+.sv .stxt.mid{bottom:auto;top:50%;transform:translateY(-50%)}
+.sv .stxt.mid span{background:none;font-size:26px;line-height:1.5}
+.sv .stxt .mention{color:#fff;background:rgba(255,255,255,.22);border-radius:6px;padding:0 6px;text-decoration:none;font-weight:700}
+.sitem .sth{width:64px;height:100px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:11px;text-align:center;padding:4px;overflow:hidden}
+.dmedit{display:flex;gap:6px;align-items:center}.dmedit select{border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--bg);color:var(--fg)}
+.msg .x{border:0;background:none;color:var(--heart);font-size:12px;align-self:center}
+.msg .g{border:0;background:none;color:var(--muted);font-size:12px;align-self:center}
+.dgap{min-height:30px;padding:10px 0 4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--muted);text-align:center}
+.dgap input{width:210px;text-align:center;font-size:12px;border:1px dashed var(--line);border-radius:8px;padding:5px 8px;background:var(--bg);color:var(--fg)}
+/* overlay sheets */
+.ov{position:fixed;inset:0;background:var(--overlay);z-index:20;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--bg);border-radius:14px;width:100%;max-width:480px;max-height:100%;overflow-y:auto;padding-bottom:14px}
+.edrow{display:flex;gap:8px;flex-wrap:wrap;padding:12px var(--gr) 0 var(--gl)}
+.cmadd{display:grid;grid-template-columns:110px 1fr auto;gap:6px;margin-top:10px}
+.cmadd input{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:6px 8px;min-width:0}
+form.f{padding:16px;display:grid;gap:12px}
+form.f h2{margin:0;font-size:16px}
+.f label{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.f input,.f textarea,.f select{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:8px 10px;font-size:14px;width:100%;min-width:0}
+.f textarea{min-height:90px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.thumbs div{position:relative;width:72px;height:72px}
+.thumbs img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:var(--fg);color:var(--bg);font-size:13px;line-height:1}
+.thumbs .mv{left:-6px;right:auto}
+.frow{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:12px}
+/* direct messages */
+.dmhead{display:flex;align-items:center;gap:10px;min-width:0;margin-right:auto;background:none;border:0;padding:0;text-align:left;color:var(--fg)}
+.dmhead b{display:block;font-size:15px;line-height:1.2}
+.dmhead span{display:block;font-size:12px;color:var(--muted)}
+.thread{display:flex;flex-direction:column;gap:6px;padding:16px var(--gr) 16px var(--gl);min-height:calc(100vh - 200px)}
+.intro{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:12px 0 22px;color:var(--muted);font-size:13px}
+.intro b{color:var(--fg);font-size:17px;margin-top:6px}
+.msg{display:flex;align-items:flex-end;gap:8px;max-width:80%}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.bub{border-radius:20px;padding:8px 14px;white-space:pre-wrap;word-break:break-word;background:var(--soft);color:var(--fg)}
+.msg.me .bub{background:var(--dm);color:#fff}
+.fail{color:var(--heart);font-size:11.5px;align-self:flex-end;text-align:right;margin-top:-2px}
+.typing{color:var(--muted);font-size:13px;padding-left:36px}
+.composer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:480px;z-index:12;background:var(--bg);padding:8px var(--gr) calc(8px + env(safe-area-inset-bottom,0px)) var(--gl)}
+.composer form{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 16px}
+.composer input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:15px;padding:6px 0}
+.composer button{border:0;background:none;color:var(--dm);font-weight:700;padding:6px 12px}
+.composer button:disabled{opacity:.4}
+.alert{background:var(--bg);border-radius:14px;width:100%;max-width:290px;text-align:center;overflow:hidden}
+.alert p{margin:0;padding:22px 18px;font-size:15px;font-weight:600}
+.alert button{width:100%;border:0;border-top:1px solid var(--line);background:none;padding:12px;font-weight:700;color:var(--dm)}
+.savebar{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--fg);color:var(--bg);display:flex;align-items:center;gap:10px;padding:10px var(--gr) 10px var(--gl)}
+.savebar span{flex:1;min-width:0;font-size:13px}
+.savebar .btn{background:var(--bg);color:var(--fg);border-color:var(--bg)}
+@media (max-width:400px){.prof{gap:14px}.cmadd{grid-template-columns:1fr auto}.cmadd input:first-child{grid-column:1/-1}}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(12px);opacity:.6}}}
+</style>
+<div id="app"></div>
+<script type="application/json" id="state">{"accounts":[{"id":"ian","handle":"yanian.j","name":"정이안","bio":"@yan_stay 쥬얀장🤍","followers":"9.7만","following":"225","link":"","avatar":"ijx8gfwar","posts":[{"id":"pjsp6xr43","images":["ibrihb3in","i780v2pu8","io4lwe0uh"],"caption":"출장✈️","date":"2025-10-22","likes":"10098","location":"도쿄","comments":[{"id":"c0cdj9mbj","author":"anana08","text":"야 담에 또 가자"},{"id":"cyi14e8se","author":"uuuharam","text":"@anana08 둘이 진짜 영혼의 단짝이구나"},{"id":"cbfqrgbk4","author":"sooyeonii","text":"양양의 자랑 정이안"},{"id":"cknb43gzq","author":"yeonii","text":"언니 너무 예쁘세요 !!"},{"id":"c8ort7xtg","author":"eunjoooo3","text":"수엠고의 자랑 정이안"},{"id":"crfphb6wd","author":"taejanim","text":"i’m not breathing rn 😭"}]},{"id":"pp3tzn67q","images":["ic81upm9d","iuyfyp147","iwdksak2k"],"caption":"얀스테이🤍","date":"2025-11-22","likes":"23121","location":"","music":"Thee Sacred Souls • Will I See You Again?","comments":[{"id":"ctz5wi0ar","author":"anana08","text":"할무니 너무 예쁘게 찍어주신다"},{"id":"cs5a0nee4","author":"estelll_","text":"@anana08 헐 할머니가 찍어주신거야? 너무 예쁘다 🥹"},{"id":"c873w7fd5","author":"eunjoooo3","text":"와 이거 1번 내 원픽"}]},{"id":"ptxi00s9z","images":["impfh96jx","i9t6rk768","imf5xymbs"],"caption":"🤎","date":"2025-12-01","likes":"17853","location":"","comments":[{"id":"cglks02xy","author":"anana08","text":"북치기 박치기 ㅋ"},{"id":"c8ackal31","author":"sooyeonii","text":"어떤 노씨가 니 피드 다 망친다 야 ㅋㅋㅋ"},{"id":"c6iqdvxm3","author":"taejanim","text":"i’d commit crimes for you ngl 😂😂"}]},{"id":"ppul7l1ey","images":["ir255coif","ivghwy21e","i9n0vtt5u","i4xfvphf6"],"caption":"얀스테이는 겨울도 🤍","date":"2025-12-22","likes":"21152","location":"","music":"Sabrina Carpenter • Honeymoon Fades","comments":[{"id":"ci8vhoglu","author":"yeonii","text":"언니 저 이번에 얀스테이 가요 ! ㅎㅎㅎ"},{"id":"c4rhv7ee3","author":"uuuharam","text":"정이안 많이 컷다~"},{"id":"c3jmkclyi","author":"eunjoooo3","text":"오 이거 잘나왔다잉"}]},{"id":"p26nlfu6b","images":["iehlw6cz5","i2rvsyhlw"],"caption":"봄이당♥️","date":"2026-04-12","likes":"48521","location":"","comments":[{"id":"c93inbkrv","author":"uuuharam","text":"오 쫌 고딩때 같은데"},{"id":"cns4zdlwy","author":"dksfkdgo","text":"ㅁㅊ 존예 발견"},{"id":"cio3ndhxq","author":"taejanim","text":"매우 예쁩니다. 당신을 알게되어 기쁩니다. 🥹❤️"},{"id":"c1ftlxyel","author":"eunjoooo3","text":"정이안 드디어 세계로 나가냐"}]},{"id":"p6hlxxiau","images":["i2rfe0p1p","i39un3npp","ieqolgz7m"],"caption":"겨울? 여름? 🥹","date":"2026-01-13","likes":"17754","location":"","music":"Ariana Grande • Almost Is Never Enough","comments":[{"id":"cbobdlfd3","author":"estelll_","text":"제일 예뻐 내 뮤즈🤍"},{"id":"c898my87b","author":"anana08","text":"얼어디지겟다야"},{"id":"cukbhhmln","author":"sooyeonii","text":"아니 니 진짜 왜케 이쁨?"},{"id":"ch0gygx8d","author":"eunjoooo3","text":"정이안 인스타만 오면 수엠고 동창회임 ㅋㅋㅋ"},{"id":"cyi4i4v1p","author":"taejanim","text":"who allowed you to be this pretty??"}]},{"id":"p4zd6qrht","images":["igjum3qey","if44ro2vg"],"caption":"벌써 1년 전 🫨","date":"2026-06-15","likes":"26631","location":"","comments":[{"id":"c0d6khnxn","author":"gksska2","text":"흑발 개이쁘네"},{"id":"czz2b15gb","author":"anana08","text":"냐샷📸"},{"id":"cvqnreaf8","author":"dksfkdgo","text":"오살힘😭"},{"id":"cvrur0h0q","author":"xowksla","text":"제발 사진 꽉 채워주세요...🥹"},{"id":"ck5cubklg","author":"dksfkdgo","text":"언제 이렇게 컸어...ㅠㅠㅠㅠ"},{"id":"cr963cugp","author":"taejanim","text":"OMG 매우 아름답다 ❤️❤️"}]},{"id":"pu1sde7ys","images":["i6kpj1gdw","irfux37w6","iv9qoo6xj"],"caption":"벌써 여름☀️","date":"2026-06-30","likes":"87121","location":"","music":"","comments":[{"id":"cp6hd3bd9","author":"anana08","text":"얀사장님 ㅈㄴ예쁘시네"},{"id":"ck8q2gd1x","author":"estelll_","text":"포바텔📸"},{"id":"cojyw3n59","author":"gkcb224","text":"사장님 미모 무엇 ㅠㅠㅠㅠ"},{"id":"cewhdivu6","author":"dadangye","text":"안녕하세요~ 디엠 확인 가능하실까요~?"},{"id":"c0c19sy3k","author":"tellmegg","text":"this is illegal 🚨"},{"id":"cwxgbyejo","author":"taejanim","text":"너무 아름답습니다. 주황색 머리카락이 매우 잘 어울립니다. 🧡"},{"id":"ca5zp0hxl","author":"yeonii","text":"여기 평상 너무 좋아요오 ㅠㅠ"},{"id":"c2xwkmxak","author":"eunjoooo3","text":"양양의 딸 정이안"},{"id":"clbsslgsp","author":"dualtoeo","text":"@didskawk 아니 양양에 이런 분이 계셨다고?"},{"id":"ca7rt8ux1","author":"didskawk","text":"@dualtoeo 니만 모른듯;"},{"id":"c3ep9uwjt","author":"gkssu79","text":"그쪽만 모르신듯.. 개유명해요 수엠고 정이안"},{"id":"c8yezanyt","author":"gkcbgking","text":"@dualtoeo 양양 사람인데 몰랏다고?;;"},{"id":"cn5qb2fzf","author":"hellenaa00","text":"someone call 911 she’s too pretty 🚑"},{"id":"cbrpc58vd","author":"oliivia_hot","text":"i just audibly gasped"}]},{"id":"p40mkqmux","images":["iomw3tsfr","izlke8rw7"],"caption":"🌿🤍","date":"2026-06-28","likes":"31128","location":"","music":"죠지 • camping everywhere","comments":[{"id":"cafvtnypv","author":"estelll_","text":"이 언니밖에 없지? 🤍"},{"id":"cqn6jb5iy","author":"yanian.j","text":"@estelll_ 맨날 찍어죠"},{"id":"cbfrdj8ob","author":"anana08","text":"얼빡에 자신 있으신가보다"},{"id":"cy9qp67d9","author":"dldkscnwhdwk","text":"사장님 너무 예뻐요....."},{"id":"c9sfolhn0","author":"gksskatlfj","text":"여자의 악마"},{"id":"c8z0qb6ns","author":"eunjoooo3","text":"다현언니 어쩌다 찍사가 된거임"},{"id":"cdb6mlgqs","author":"taejanim","text":"i’m booking yan stay just to see you istg 😭"}]},{"id":"p47du44jk","images":["iwy0fyoh4","iy046m09i"],"caption":"@yan_stay 🍋🍋","date":"2026-07-02","likes":"71278","location":"","music":"Hearts2Hearts • Lemon Tang","comments":[{"id":"cnbxsn5ju","author":"anana08","text":"낼 레몬서리하러감 ㅅㄱ"},{"id":"c7kwhzg3w","author":"yanian.j","text":"@anana08 오지마 도둑놈아"},{"id":"c7yiy2qfv","author":"blfcbgk","text":"레몬체험 ㅁㅊ!!"},{"id":"cmwftom3o","author":"gksskal2","text":"레몬 따러 가면 사장님 볼 수 있나요"},{"id":"c4yfljuen","author":"donghyeon2","text":"@gksskaee  레몬 따러 함 가자"},{"id":"cop9uckao","author":"taejanim","text":"너무 아름다워요. 사진이 마음에 들어요. ❤️❤️"},{"id":"c5rk0gk9n","author":"hahamyg","text":"당신은 매우 아름답습니다.🔥❤️‍🔥🔥"},{"id":"c4z4l4jzg","author":"dadangye","text":"안녕하세요! 문의 드리고 싶은게 있습니다 ☺️☺️"},{"id":"cn6n3to32","author":"sooyeonii","text":"정이안플루언서"},{"id":"cmc8gr4n3","author":"eunjoooo3","text":"@sooyeonii 얀퍼스타 ㅋㅋㅋ"}]},{"id":"pkgv706b7","images":["ipwdz3z74","idjns5en9","iccukmwem"],"caption":"🖤","date":"2026-08-19","likes":"81607","location":"양양 현남면","music":"Red Velvet • Day 1","comments":[{"id":"cravzgwgs","author":"anana08","text":"역시 다현킴."},{"id":"cruj0z99p","author":"estelll_","text":"@anana08 나 아냐 ㅋㅋㅋㅋㅋ 모야 누가 찍어준거야?!"},{"id":"c0mnybzpl","author":"hellenaa00","text":"stop you look so good 😭"},{"id":"c7rrpqu97","author":"woo_S2","text":"이런건 언제 찍었대"},{"id":"c3zonroof","author":"yanian.j","text":"@estelll_ @anana08 순애씨 🤍"},{"id":"caimkc823","author":"gksskal2","text":"@donghyeon2 내여친후보"},{"id":"ctkycn783","author":"donghyeon2","text":"gksskal2 ㅈㄹ ㅋㅋㅋㅋ"},{"id":"c3o8v947o","author":"hahamyg","text":"who took this?? the photographer deserves a raise lol"},{"id":"cmsfhc77m","author":"eunjoooo3","text":"오 역시 순애씨 ✨"},{"id":"crs3zl86z","author":"anana08","text":"@yanian.j 아 순애씨 ~~🤍 저도요 🤍"},{"id":"ciz4vt34k","author":"taejanim","text":"너무 예뻐요. 백설공주 같아요.🤍♥️"}]},{"id":"pokz9x0aw","images":["irj48p4sr","iqt7bq3zr","iqtw74j6e","ioatijoo9"],"caption":"photo by @estelll_ 🤍","date":"2026-10-03","likes":"90706","location":"","music":"채영 • AVOCADO (feat.Gliiico)","comments":[{"id":"c90qojrwz","author":"anana08","text":"아무래도 언니가 신의 손인가봄."},{"id":"ckcg9r52j","author":"estelll_","text":"너무이뿌🤍🤍"},{"id":"czqkcyxrf","author":"gksskal2","text":"오늘도 존예시다"},{"id":"cyqx8wp4o","author":"tellmegg","text":"the visuals 🔥🔥🔥"},{"id":"cu8laybkj","author":"blfcbgk","text":"사장님 ㅠㅠ 휴가 잘 다녀오세요 !! 🥹🥹"},{"id":"cxkaalug1","author":"taejanim","text":"stunning as always 🤍"},{"id":"c7nnafrfk","author":"gksskaee","text":"존나 예쁘네 미친"},{"id":"cuzaap21n","author":"yanian.j","text":"@anana08 ^^?"}]}],"dm":{"mode":"reply","reply":"얀스테이로 쉬러 오세요🤍"},"stories":[{"id":"sian1","share":"anana08","img":"ivog53nsw","sbg":"#f4a8b9","stext":"","bg":"#2b2b2b","dur":5,"time":"20시간","text":"ㄱㅅ ^^ "},{"id":"sian2","share":"eunjoooo3","img":"ijaxvz9lx","sbg":"#9fc6e8","stext":"","bg":"#2b2b2b","dur":5,"time":"20시간","text":"감사요 ^^"},{"id":"svfb8ph3y","share":"estelll_ ","img":"i5efes2x4","sbg":"#f2a7b8","stext":"","bg":"#2b2b2b","dur":5,"time":"20시간","text":"김다현🤍🤍🤍🤍🤍"},{"id":"sq262g54o","share":"sooyeonii","img":"ixhacokp0","sbg":"#f2a7b8","stext":"","bg":"#2b2b2b","dur":5,"time":"6시간","text":"SARANGHAE"}]},{"id":"jiwoo","handle":"woo_S2","name":"최지우","bio":"24","followers":"7.4만","following":"423","link":"","avatar":"il96ny6hv","posts":[{"id":"p3","images":["ied0nr315","izaoe38xc","ina3z2bc8"],"caption":"🗼🤍","date":"2025-07-14","likes":"60907","location":"프랑스 파리","comments":[{"id":"c6","author":"yerin__","text":"언니 서울 언제 와??"},{"id":"c4k5m6z55","author":"rameee_","text":"파리가 퍼컬 ;;"},{"id":"c8sbs55mv","author":"jaehoon_l","text":"지우야 오빠도 파리야"},{"id":"cglkz4lz2","author":"gksska2","text":"@skalskalgksskal 개이쁘지않냐"},{"id":"cf9jk01rm","author":"a_una1220","text":"언니 탈색 잘어울려요"},{"id":"c728fu8d1","author":"woo_S2","text":"@a_una1220 고마워🤍"},{"id":"chw9ghoft","author":"jjooLI0","text":"속보) 최지우 없는 서울 해 안 떠"},{"id":"cl03m1y3d","author":"hanseok.02","text":"역시 셔터 에이스 👏"}]},{"id":"pf9vjs3om","images":["iyp1yfxuq","i88u12s24","iclf3dpn9"],"caption":"Hawaiii☀️","date":"2025-10-22","likes":"57465","location":"하와이 호놀룰루","comments":[{"id":"choeb5nww","author":"rameee_","text":"데뷔해라 걍"},{"id":"c4c144r5p","author":"gkskae","text":"존나이쁘네"},{"id":"c1oenncfl","author":"yerin__","text":"여자의 악마 최지우."},{"id":"cq50j8lwg","author":"naoni19","text":"언니 너무 예뻐요...🥹"},{"id":"cioe0ataj","author":"rmenita","text":"쥬 너무 예뿌다 ❤️‍🔥"},{"id":"cpx21nc1q","author":"a_una1220","text":"내가 찍어준 사진은 왜 없지..."},{"id":"cx4mtjfsi","author":"jjiuuvos","text":"최지우 미모가 내 미래보다 밝음"},{"id":"c2bwjer54","author":"yerin__","text":"@a_una1220 이유를 모르는 것도 문제;"},{"id":"cqfa8m1ko","author":"hanseok.02","text":"사진 예쁘게 잘 나왔다 지우야~"}]},{"id":"psoxl8v7u","images":["i0lw4uff3","i0gvr2bqa","ir302hndq"],"caption":"🖤","date":"2025-12-24","likes":"44712","location":"서울","comments":[{"id":"cw6k4lm2g","author":"rameee_","text":"흑발 존예. 염색 좀 하지 마러라"},{"id":"c9g60j6yf","author":"naoni19","text":"저도 흑발로 염색할까봐요.. 언니 보니까 갑자기..! ㅎㅎ"},{"id":"cr3zynooz","author":"jjiuuvos","text":"진심 네 얼굴만 봐도 배가 부르다"},{"id":"czd2vsmz2","author":"yerin__","text":"언니 우리가 부끄러워?"},{"id":"c604bhpy3","author":"a_una1220","text":"아 왜 우리 짜르고 올려요 ㅋㅋㅋㅋ 너무해"}]},{"id":"pmj5qazcw","images":["iodxx06m3","iux1obybl"],"caption":"Valentine❤️","date":"2026-02-14","likes":"72614","location":"서울","comments":[{"id":"cqgmdtnv6","author":"yerin__","text":"머야 누구랑 갓어."},{"id":"c55h8rxlz","author":"rmenita","text":"나 이거 보려고 인스타 들어왓네"},{"id":"ca732b0lh","author":"a_una1220","text":"@yerin__ 나야"},{"id":"c0x7fwsy9","author":"jjooLI0","text":"언니 여며요 ㅜㅜㅜㅜ"},{"id":"c5rkpousp","author":"woo_S2","text":"@jjooLI0 어딜 더 여며야 하는거야 ㅋㅋㅋㅋ"},{"id":"c0vo1ab80","author":"kawaiicollecter","text":"너무 예쁩니다. 당신의 얼굴을 좋아합니다. ❤️"}]},{"id":"p9sntpev7","images":["ipu7vjesh","ijbl6a1fz","ims3rhiou"],"caption":"🚤","date":"2026-05-22","likes":"34421","location":"미국 뉴욕","comments":[{"id":"cngbo5w36","author":"a_una1220","text":"내가 찍어준 사진은 왜 안올려줘요 ㅜㅜ"},{"id":"caz34rvxc","author":"jaehoon_l","text":"뉴욕 왔었어? 연락하지~ ㅠ"},{"id":"clryjehjo","author":"yerin__","text":"앙 린찍사 🤍"},{"id":"crjs2c4ov","author":"a_una1220","text":"@yerin__ 왜 니만."},{"id":"c8i290j7s","author":"skalskalgksskal","text":"얼굴, 재력, 학벌 다 가진 최지우가 유일하게 갖지 못한것. 나 조한남"},{"id":"cll2v3xli","author":"wbwhdwk907","text":"@skalskalgksskal 걍 지나가세요;"},{"id":"cp03uwyqn","author":"cjwily00","text":"@skalskalgksskal ㅈㄴ갖기 싫을듯"},{"id":"c7nii6qno","author":"wbdisgktpdy","text":"@skalskalgksskal 주제파악 ㄹㅈㄷ ㅋㅋ"},{"id":"ch3anc80s","author":"jjiuuvos","text":"너무 이뿌다 최지우!!!"}]},{"id":"pbaoatzm8","images":["ifjbb9ond","idoycpz74","im9xu9h9a","i0qxn8srt","i78w1dq82"],"caption":"🗾","date":"2026-06-05","likes":"51173","location":"일본 고베","comments":[{"id":"c0j6pj2ic","author":"rameee_","text":"이 언니는 진짜 한국에 있는 날이 없네"},{"id":"cd4pc0tn9","author":"yerin__","text":"@rameee_ 가진자의 여유;"},{"id":"cdl54iqu2","author":"woo_S2","text":"@yerin__@rameee_ 지금 한국이야 ㅋㅋㅋ"},{"id":"cdhhrtho9","author":"rmenita","text":"너무 재밋어따 쥬쥬 🤍"},{"id":"cb94n93cl","author":"gksska2","text":"@skalskalgksskal 아 우리도 일본이엿는데 아깝노"},{"id":"cnryvuakq","author":"kawaiicollecter","text":"일본에 자주 와주세요. 🥹🔥"}]},{"id":"pkiltuq08","images":["itwvz67hj","ifr5ehooe","ic2c1rju7","i3maho7fl"],"caption":"🤍","date":"2025-11-17","likes":"47165","location":"미국 뉴욕","comments":[{"id":"c7ceytw69","author":"a_una1220","text":"언니 도대체 서울엔 언제와요"},{"id":"cwqoeqs4e","author":"woo_S2","text":"@a_una1220 곧 들어갈듯?"},{"id":"cc4p8ak2n","author":"jaehoon_l","text":"이번에 부모님이랑 같이 온거지? 오빠 보고 가~"},{"id":"cupmaueuw","author":"jjooLI0","text":"얼은여자같다 웅니."},{"id":"cph3i6t2v","author":"gksska2","text":"디엠은 잘안보시나봐요ㅜ"},{"id":"ca8jx6q31","author":"jjiuuvos","text":"동기가 선배님으로 보이는건에 대하여"},{"id":"cw7he3g63","author":"rameee_","text":"👔🤍👏"}]},{"id":"pqu3xyr3k","images":["ioto1n4kd","i2cndub65","ins611w4d"],"caption":"여름 🌿","date":"2026-08-15","likes":"64418","location":"","music":"","comments":[{"id":"cdb42tscg","author":"rameee_","text":"머야 어디임?"},{"id":"c9bjr592u","author":"yerin__","text":"@rameee_ 진짜 어디 있는지 종잡을 수가 없는 언니"},{"id":"ccxnvgz3d","author":"rmenita","text":"지우 !! 너무 예뻐 백설기 같아 🤍"},{"id":"cj7qddft2","author":"yanian.j","text":"예뻐요"},{"id":"c4b68cisn","author":"kawaiicollecter","text":"너무 예뻐요! 일본인가요? 🐰"},{"id":"cv2ti87eo","author":"a_una1220","text":"이 언니는 양양에 남은걸까 서울에 돌아온걸까 또 어딘가로 떠난걸까"},{"id":"cv7h7e1ki","author":"jjiuuvos","text":"와 이거 ㄹㅈㄷ 개이뻐!!!"},{"id":"cmyd1uaqy","author":"skalskalgksskal","text":"ㅈㄴ이쁘네 제 여친 하실?"},{"id":"cmfw9lwkd","author":"cjwily00","text":"@skalskalgksskal 죽지도 않고 또 왔네 걍 죽으세요"},{"id":"cmdx3mfpn","author":"wbdisgktpdy","text":"언니 예뻐요 😭😭😭"}]},{"id":"p8u29w44v","images":["io45ycnqo","if7mn3r9p"],"caption":"🏫","date":"2026-09-14","likes":"73542","location":"서울","music":"Sabrina Carpenter • Bed Chem","comments":[{"id":"czd4tuikd","author":"yerin__","text":"아 학교에 왜케 이쁘게 하고 다니냐고~~~!"},{"id":"c9yldu5b0","author":"a_una1220","text":"어깨라인 미 쳣 다"},{"id":"cxdy8478o","author":"jaehoon_l","text":"너무 예쁘다 지우야 ~~~"},{"id":"c5pof39sd","author":"rameee_","text":"@a_una1220 얘 왜이래ㅋㅋㅋㅋ"},{"id":"c7axbfeck","author":"weixu_wei","text":"姐姐好美 我可以！"},{"id":"c6zae5qqq","author":"kawaiicollecter","text":"청바지가 너무 잘 어울려요! 너무 귀여워요! 🤍🤍"},{"id":"chvkjpzql","author":"cjwily00","text":"대존예 언니 날 가져요"},{"id":"ckf8rqpq2","author":"jjiuuvos","text":"세치대의 자랑. 경영학과의 자랑."},{"id":"c9sbumvx0","author":"hellenaa00","text":"you get prettier every post, how 😍"}]}],"dm":{"mode":"reply","reply":"","bundles":[["난 보고싶었어","네가 자꾸 생각이 났어"],["보고싶으면 연락 하라고 했는데 연락이 없어서 선뜻 연락을 못 했어","나 계속 연락 해도 돼?"],["네가 처음이야","정말로 지금까지는 한번도 이런 적 없었어","내가 너를 꽤 많이 좋아하나봐"]]},"stories":[{"id":"s93r5z9xm","img":"ihda19jou","dur":5,"time":"8시간","text":""}],"dmHide":false},{"id":"yanstay","handle":"yan_stay","name":"얀스테이 YAN STAY","bio":"YAN STAY\n📍양양 현남 · 프라이빗 풀빌라\n📍농촌체험 · 바비큐 · 온수풀\n강원도 양양군 현남면 2024-224","followers":"6009","following":"109","link":"","avatar":"i2px926uj","posts":[{"id":"p1","images":["ingfj8pcu"],"caption":"📍얀스테이 2026 여름 예약 오픈\n\n7·8월 성수기 예약이 열렸어요 ☺️\n다섯 채 모두 개별 온수풀이 있고,\n죽도해변까지 차로 2분도 안 걸린답니다 🤍\n올여름도 얀스테이에서 쉬어 가세요😉♥️\n\n#양양풀빌라 #현남면 #얀스테이","date":"2026-06-01","likes":"412","location":"양양 현남면","comments":[{"id":"c1","author":"surf_mina","text":"작년에 3호동 진짜 좋았어요! 올해도 갑니다"},{"id":"cv0vwbjpq","author":"yan_stay","text":"@surf_mina 감사합니다! 올해도 기다릴게요 :)"},{"id":"c3aoh7wt4","author":"rameee_","text":"@woo_S2 @yerin__ @a_una1220 여기 예약할까"}]},{"id":"p251ngqap","images":["itownmbkk"],"caption":"📍얀스테이 농촌체험 🍋 레몬 따기 오픈\n\n올여름 얀스테이에서는\n직접 레몬을 따는 체험을 준비했어요 ☺️\n갓 딴 레몬으로 레몬청까지 만들어 가실 수 있어요!\n\n📍체험 시간 : 오전 10시 ~ 오후 5시\n📍17시 이후에는 체험이 어려워요\n📍체험 신청은 체크인 시 관리동에서 말씀해 주세요\n\n햇살 좋은 날, 레몬 향 가득한 하루 보내고 가세요 🍋💛\n\n#얀스테이 #양양풀빌라 #현남면 #농촌체험 #레몬따기 #양양여행 #yanstay","date":"2026-06-22","likes":"2009","location":"양양 현남면","comments":[{"id":"cjd9vq2c7","author":"hac_hu4220","text":"@tohatzu ㅁㅊ 레몬따기는 첨봐요"}]},{"id":"pdcx3wxmw","images":["igj5a5eh0"],"caption":"📍VILLA 03. 얀스테이 3호동\n\n소나무 숲과 동해 바다 사이,\n얀스테이에서 가장 바다가 잘 보이는 3호동을 소개해요 🌊\n\n📍기본 4인 · 최대 20인\n📍유리벽 온수 풀 & 얕은 선베드존\n📍바다를 보며 즐기는 야외 바비큐 키친\n📍동해가 보이는 테라스 다이닝\n📍루프탑 가든\n\n해 질 녘 테라스에 불이 하나씩 켜지는 순간이\n3호동이 가장 예쁜 시간이에요 🤍\n\n7·8월 예약은 네이버 예약에서 만나보세요.\n\n#얀스테이 #얀스테이3호동 #양양풀빌라 #현남면 #오션뷰풀빌라 #양양여행 #yanstay","date":"2026-06-28","likes":"2006","location":"양양 현남면","comments":[{"id":"cxfhquj6z","author":"yan_stay","text":"현재 얀스테이는 만실입니다..🥹🤍"}]}],"dm":{"mode":"reply","reply":""},"stories":[],"dmHide":true},{"handle":"anana08","name":"노유나","bio":"@offshore 미녀 강사 ^^","followers":"4.1만","following":"122","link":"","avatar":"iwkpaywwq","dm":{"mode":"reply","reply":"이안아 한가하냐?"},"id":"anana08","posts":[{"id":"px5ff2c6w","images":["i3unnl53j","ilb3wo55w","i00xujtwe","il29ddmcp","igtpaijar"],"caption":"고딩 유나 🙉","date":"2025-05-27","likes":"1220","location":"","music":"","comments":[{"id":"cagowl4lu","author":"yanian.j","text":"노숭이"},{"id":"c3djieu2r","author":"eunjoooo3","text":"아 PTSD 올라해;;"},{"id":"cn8zoirq7","author":"estelll_","text":"언제 봐도 귀여워 유나 💛"},{"id":"ct05up18y","author":"sooyeonii","text":"ㅁㅊ 이러고 가게 가서도 찍엇냐 ㅋㅋㅋㅋㅋ"}]},{"id":"pl356xexu","images":["iqtht9hgs","ipx241htv","id2a7rvk8"],"caption":"나만의 통역사 @estelll_ ","date":"2025-10-28","likes":"4120","location":"","music":"","comments":[{"id":"clethur9c","author":"eunjoooo3","text":"@estelll_  아 언니 왜 난 안 데려 가는데 ~~!!!"},{"id":"c31nyu8l9","author":"yanian.j","text":"오늘의 MVP Dahyun Stella Kim."},{"id":"c4vy29g0v","author":"estelll_","text":"오늘 너무 재미있었당 🤍"},{"id":"clfa0n2ih","author":"estelll_","text":"@eunjoooo3 담엔 꼭 은주도 같이 가쟈 ㅠㅠ"},{"id":"cbo3jqece","author":"sooyeonii","text":"@estelll_ 언니 나도 제발"},{"id":"c2gnmetv8","author":"anana08","text":"@eunjoooo3 @sooyeonii 대딩들은 양양이나 오도록."}]},{"id":"pwsc3ykew","images":["iye4nbzib","i3vzx48iz","ircdvudud","i1d0idzji"],"caption":"봄이 와떠요 🌿","date":"2026-04-12","likes":"7002","location":"","music":"APRIL • 예쁜 게 죄","comments":[{"id":"cz97tn3fg","author":"yanian.j","text":"조신한 척 뭐임"},{"id":"c1cwlb4v3","author":"eunjoooo3","text":"귀여운 척 뭐임"},{"id":"c2nibc0c5","author":"sooyeonii","text":"봄의 여신인 척 뭐임"},{"id":"cw5i8i5qs","author":"anana08","text":"@sooyeonii 유나가 봄의 여신 같아떠? 💚"},{"id":"cfvbpr82l","author":"estelll_","text":"유나야 너무 예뿌다 내 친구가 너 소개시켜달래 😂🥹"},{"id":"c5fu9a0z0","author":"donghyeon2","text":"@gksskaee 끼리끼리 사이언스 존나예쁨"},{"id":"c1o3hfj6o","author":"alwlwro","text":"미쳤다. 천년의 이상형"}]},{"id":"pmwab7ikb","images":["iqckna8g6","il217kfpz","igk0g8qr5","i8iuo3dj7"],"caption":"오프앤온","date":"2026-05-27","likes":"12200","location":"","music":"aespa • Armageddon","comments":[{"id":"c3nagme34","author":"alwlwro","text":"너무 예뻐요.....🥹"},{"id":"c3wl7oagk","author":"yanian.j","text":"남의 영업장에서 전세냈냐"},{"id":"co9p0js6g","author":"eunjoooo3","text":"ㅁㅊ 노유나 얀스테감?ㅋㅋㅋㅋㅋㅋ"},{"id":"cx822jdms","author":"sooyeonii","text":"유나야 제발 온만 부탁해. 오프는 안 봐도 될 것 같아"},{"id":"ca2oi7n3c","author":"tellmegg","text":"I’ve been staring at this for 10 minutes help🚨🚨"}]},{"id":"py4h5zduj","images":["i9suni5fs","ii4hrnnmh","ikqxjg9o3","ii01i8c1w","ipxojhz7o","i49z2pmae"],"caption":"서핑의 계절 🏄","date":"2026-06-18","likes":"32904","location":"","music":"Taylor Swift • Cruel Summer","comments":[{"id":"c4qs5p9p3","author":"eunjoooo3","text":"아직 춥다 유나야"},{"id":"cz1q73897","author":"yanian.j","text":"다현 언니가 고생이 많다.."},{"id":"cjj69waar","author":"estelll_","text":"@yanian.j 바다랑 유나가 너무 예뻐쏘..💖"},{"id":"ciwlf1p4f","author":"gksskal2","text":"양양 여자들 왜케 이쁨"},{"id":"cpy40od6b","author":"donghyeon2","text":"@gksskal2 ㄹㅇㅋㅋ"},{"id":"c8w1mwnic","author":"alwlwro","text":"여름에 서핑 배우러 갈게요 🥹🥹🥹"}]},{"id":"p96un4de6","images":["i7lwuyaw7","ieg2jn8w0","ihljpuld8","iv8z72kwo"],"caption":"오프쇼어 미녀강사.","date":"2026-07-31","likes":"59174","location":"","music":"","comments":[{"id":"cx9sqks4a","author":"yanian.j","text":"배경이 되게 한결같으시다. ^^"},{"id":"clo5zt52q","author":"eunjoooo3","text":"자 이제 미녀 강사를 보여주세요."},{"id":"cs9bf8ykh","author":"estelll_","text":"오프쇼어 포토스팟 💖"},{"id":"cktepaaif","author":"alwlwro","text":"미쳤다 진짜 예약 왜케 빡세요 ㅜㅜㅜ 저도 가고싶어요 ㅠㅠㅠ"},{"id":"cthx9spj5","author":"hahamyg","text":"marry me. I’m serious. I’ll learn to surf🥹🥹🥹"},{"id":"cku2qldtu","author":"sooyeonii","text":"설마 이거 오빠가 찍어주신거니"}]},{"id":"pzk67otd9","images":["iv6vtjmaa","iyrdlttg3"],"caption":"여름 끝 휴가 시작 ✈️","date":"2026-10-03","likes":"47319","location":"","music":"Sabrina Carpenter • Good Graces","comments":[{"id":"ce9aak6s8","author":"yanian.j","text":"아 빨리 씻으라고"},{"id":"c0icvtelz","author":"estelll_","text":"우리 유나 늦게 씻은 이유가 있구낭 ^^"},{"id":"c8zvveum2","author":"xuxu520","text":"老婆！！！💖"},{"id":"caz7ltui9","author":"eunjoooo3","text":"진짜 질투나서 죽을 것 같음 텔라킴의 고능한 찍사력 나도 제발"},{"id":"c12y0fdv6","author":"estelll_","text":"@eunjoooo3 한국 가면 은주 사진부터 찍으러 갈게 ㅜㅜ🤍"},{"id":"c1d6qc80t","author":"tellmegg","text":"너무 너무 예쁩니다. 사진을 많이 올려주세요. 😭"},{"id":"ci4judmmj","author":"88linlina","text":"you look absolutely beautiful 🤍"},{"id":"c9j9rf22k","author":"weixu_wei","text":"仙女下凡了吧🥹😭"}]},{"id":"prg0w5lmi","images":["idxfq2y2d","icg8aom6r","ijzuj7kf0"],"caption":"단아 유나","date":"2026-09-19","likes":"37714","location":"","music":"","comments":[{"id":"c9qj1i3jk","author":"sooyeonii","text":"뭐야 뭔데 이거"},{"id":"ccljuzoqf","author":"yanian.j","text":"@sooyeonii 유현오빠 상견례;;"},{"id":"cq4pgt7kj","author":"eunjoooo3","text":"우리 유나 조신한척 잘 하고 왔니"},{"id":"crlq0q1ad","author":"donghyeon2","text":"@gksskal2 다음은 우리야 초대할게"},{"id":"cqod4uf6m","author":"gksskal2","text":"@donghyeon2 내거임;"},{"id":"cmzvbpbt9","author":"estelll_","text":"우리 유나는 결혼 하지 말구 평생 우리랑 놀자 🤍"},{"id":"c609frqs2","author":"alwlwro","text":"와 진짜 너무너무 예쁘다 ㅠㅠㅠㅠ"},{"id":"cep3joh7p","author":"hellenaa00","text":"saving this to my camera roll 🥹💖"}]}],"stories":[{"id":"slrxjl8to","img":"iahe4galu","dur":5,"time":"20시간","text":""}]},{"handle":"estelll_","name":"Dahyun Stella Kim","bio":"다현","followers":"6.1만","following":"618","link":"","avatar":"iscyyy3h3","dm":{"mode":"reply","reply":""},"id":"estelll_","posts":[{"id":"pawngz5iq","images":["ifvaxvhjh","ikrtf8lhh"],"caption":"Go back home","date":"2025-01-23","likes":"41571","location":"","music":"Adele • Easy on Me","comments":[{"id":"ckb0lrvb3","author":"yanian.j","text":"언니 빨리 와 ㅠ ㅠ ㅠ"},{"id":"cdj8q33xq","author":"anana08","text":"@yanian.j 언니도 부모님 만나야지;;"},{"id":"cxnw2k2zo","author":"sooyeonii","text":"안경 모야 왜케 잘 어울료"},{"id":"c7hgebtv3","author":"rmenita","text":"다현 너무 예뽀 🤍🤍"}]},{"id":"p1d95qmsw","images":["i3otmaqav","i15bxvmus","impa4o2ju","iagzvkpf9"],"caption":"🌃","date":"2025-09-07","likes":"81670","location":"","music":"","comments":[{"id":"ce9dilh49","author":"anana08","text":"@yanian.j 퍼컬이 외국인걸까"},{"id":"c32ttvzug","author":"yanian.j","text":"@anana08 일단 양양은 아닌게 확실함.."},{"id":"cpz7s9amt","author":"eunjoooo3","text":"언니 눈부셔요 🕶️🕶️"},{"id":"ceuahexo5","author":"hellenaa00","text":"obsessed with this pic 😭"},{"id":"cbddwan7o","author":"gksskal2","text":"너무..예뻐요...🥹"}]},{"id":"ph87er2b6","images":["ixumeewuf","igfer4xr4","izlhhlczm","i8z7bqewb","i7srw1ppa"],"caption":"NYC","date":"2026-05-20","likes":"74512","location":"","music":"","comments":[{"id":"ccn9y9prf","author":"yanian.j","text":"여기 모야 왜케 이뻐 나두 데려가줘어 ㅜㅜ"},{"id":"czc3czln6","author":"anana08","text":"여기 머야 왜케 이뻐 나두 데려가줘어 ㅜㅜ"},{"id":"cp5wm1f3w","author":"eunjoooo3","text":"여기 뭐야 왜케 이뻐 나두 데려가줘어 ㅜㅜ"},{"id":"cikr2wdj4","author":"sooyeonii","text":"언니 쟤네 말고 나만 데려가줘."},{"id":"ckbgurvbl","author":"hellenaa00","text":"you’re glowing ✨✨"},{"id":"cciave5gj","author":"justin.o","text":"how are you this pretty??"},{"id":"cd5dwpniz","author":"evelynnnn","text":"ate and left no crumbs 💅"}]},{"id":"pm04cutz2","images":["icd2p2aiq","il9nt5513","iyb3cvgjo","ioqncf1vt","icewg44xa","i4f3nwel3"],"caption":"💌🍀🚕🌹🍯","date":"2025-10-28","likes":"64132","location":"","music":"Olivia Dean • So Easy (To Fall In Love)","comments":[{"id":"crmm7yozx","author":"sooyeonii","text":"스텔라다현킴 농협은행"},{"id":"ciq5nh3wq","author":"anana08","text":"@sooyeonii 다현 스텔라 킴임;"},{"id":"c9o9r3jy4","author":"yanian.j","text":"@sooyeonii 아니 플필 안보임?ㅋㅋㅋㅋ"},{"id":"cg7k881l5","author":"sooyeonii","text":"다현 스텔라 킴 쏘 프리티 ^^🤍"},{"id":"c1aegpxdm","author":"estelll_","text":"@sooyeonii ㅋㅋㅋㅋㅋ 갠차냐아 어차피 다 나자나"},{"id":"ceodh6zr3","author":"gkssu79","text":"ㅈㄴ이쁘네;;"},{"id":"cwpwhpxzq","author":"donghyeon2","text":"@gksskaee 팔추"}]},{"id":"ptxhdw3l6","images":["ipssntel8","ipk3xyhug"],"caption":"@yanstay 🍋","date":"2026-06-26","likes":"57484","location":"","music":"Hearts2Hearts • Lemon Tang","comments":[{"id":"c4j7j7s4j","author":"yanian.j","text":"아아앙 언니이 💛"},{"id":"cdrr0vb7m","author":"yanstay","text":"💛💛💛💛💛"},{"id":"czz1eum1m","author":"eunjoooo3","text":"제발 더 줘."},{"id":"cjb2qturg","author":"anana08","text":"오프쇼어는 생각 없으실까요 고갱님~~? 😊"},{"id":"c6opa2yzd","author":"rmenita","text":"레몬~~ 너무 잘 어울려 다현 💛✨"},{"id":"c28wbgzuj","author":"blfcbgk","text":"레몬체험 너무 재밌을 것 같아요 🥹"},{"id":"co4wk9o1i","author":"hahamyg","text":"literally an angel 👼🏻"}]},{"id":"paqc9iihj","images":["ibxjqvg89","ieyutp84l","i19quvpm2"],"caption":"🤍🌳🐰☀️","date":"2026-10-04","likes":"90010","location":"","music":"Chrisette Michele • Like A Dream","comments":[{"id":"cxk0ief6j","author":"evlynnnn","text":"wait when did you get here?? 😭😤"},{"id":"crtmb2es6","author":"hellenaa00","text":"excuse me?? since when are you this pretty 🤍🤍"},{"id":"cwm6dymkc","author":"eunjoooo3","text":"하 진짜 억울하다. 왜 나 빼고 가는데."},{"id":"c7qz41def","author":"anana08","text":"@eunjoooo3 날라와~"},{"id":"clpfymo8o","author":"yanian.j","text":"얀찍 📷🕶️"},{"id":"c4lpo1y59","author":"donghyeon2","text":"개이쁘네진짜"},{"id":"cwy7ls5w3","author":"gksskaee","text":"어디가면만날수잇나요"}]}],"stories":[{"id":"s63oj4wug","img":"ie92vj7zz","dur":5,"time":"20시간","text":""}]}],"me":{"handle":"yanian.j","name":"정이안","bio":"","followers":"224"},"appName":"midsummer","notifs":[{"id":"n1","from":"woo_S2","text":"님이 보낸 메시지가 있습니다.","time":"방금","post":""},{"id":"n2","from":"eunjoooo3","text":"님이 댓글을 남겼습니다: 생일 축하한다 정이안🎂","time":"3시간","post":"story:ian"}],"meId":"ian","threads":{"estelll_":[{"me":false,"text":"이안아 오늘 어땡?"},{"me":true,"text":"오늘 좀 바뻐 ㅠㅠ"},{"me":true,"text":"낮시간에 찍고싶은거지??"},{"me":false,"text":"웅 ㅜㅜ 이번주 안에만 찍을 수 있으면 좋게따 ㅜㅜ"},{"me":true,"text":"3호동 말구 5호동은 어때?"},{"me":false,"text":"완전 완전 가능ㅜㅜㅜ!!!"},{"me":false,"text":"내가 그러면 낼 장비 가져다두까?"},{"me":true,"text":"웅 막 놔두 돼"},{"me":true,"text":"ㅋㅋㅋㅋㅋ"},{"me":false,"text":"이안아 덕분에 너무 잘 찍어써..🤍","gap":"2026.10.08"},{"me":false,"text":"너무 이쁘게 나와써 !!"},{"me":true,"text":"웅..."},{"me":true,"text":"노유나가 이미 한가득 자랑했어...."},{"me":false,"text":"ㅋㅋㅋㅋㅋㅋ"},{"me":false,"text":"유나가 인생샷이라구 엄청 좋아하더라구 🥹"},{"me":true,"text":"언니 덕분에 노유나 인생샷 건졋네^_^"},{"me":false,"text":"담에 이안이도 또 찍쟈아 💖"},{"me":true,"text":"웅 나야 너무 고맙찌이"},{"me":false,"text":"웅웅 ㅎㅎ"},{"me":false,"text":"얀아 열일하구우 남은 하루도 화이티잉 ☀️"},{"me":true,"text":"웅 !!! 언니두!!"},{"me":false,"text":"얀아 생일 너무 축하해애 🤍🤍🤍🤍🤍","gap":"2026.10.09"},{"me":false,"text":"이안이의 남은 스물한살도 행복한 일들만 가득하길 ☀️♥️"},{"me":false,"text":"갖고싶거나 필요한거 있으면 말하구우 케이크 맛나게 먹구 할무니랑 행복한 시간 보내 🥰😘"},{"me":true,"text":"언니이 ㅠㅠㅠㅠ 언니가 선물이야 휴가동안 우리 데리구 여행도 가주고 ㅠㅠㅠ 너무 고마워 ㅜㅜㅜ 우리 남은 올 해도 재밌게 보내쟈 !!!"},{"me":false,"text":"웅 마이 아가 생일 젤루 축하해 💖💖💖💖💖💖💖"}],"anana08":[{"me":true,"text":"아 제발 ㅃㄹ 씻으라고"},{"me":false,"text":"아 진짜 이것만 올리고 씻을거임"},{"me":true,"text":"나 자는데 머리말리면 진짜 죽인다"},{"me":false,"text":"ㅇㅇㅋㅋㅋㅋ"},{"me":false,"text":"아 그 전엔 간다고 ~"},{"me":true,"text":"제발."},{"me":false,"text":"나 올린거 ㅇㄸ?? ㅃㄹ봐줘"},{"me":true,"text":"다현언니가 개잘찍어줬네"},{"me":false,"text":"ㅎㅎ"},{"me":false,"text":"본판이 이뻐서 ㅎ"},{"me":false,"text":"미녀강사시잖냐 ㅎㅎ"},{"me":true,"text":"ㅈㄹㄴㄴ"},{"me":true,"text":"ㅃㄹ가서 씻어라"},{"me":true,"text":"야 니 ㅇㄷ임?","gap":"2026.10.06"},{"me":false,"text":"곧 감~~"},{"me":false,"text":"장실쓰~ㅎ"},{"me":true,"text":"제발 말 좀 하고 가라"},{"me":true,"text":"비행기는 맘 편히 타자 제발"},{"me":false,"text":"아 그럼여 그럼여 뱅기는 걱정마십셔"},{"me":false,"text":"원래가 미녀강사가 안 타면 출발을 못 함 ㅋ"},{"me":true,"text":"죽일까 진짜.."},{"me":true,"text":"5분 내로 안 오면 버리고 감"},{"me":false,"text":"ㅋㅋㅋㅋㅋㅋㅋ"},{"me":false,"text":"아 진짜 ㅃㄹ가는중임"},{"me":true,"text":"탐승구쪽으로 와 우리 그 앞에 있음"},{"me":false,"text":"옛설"},{"me":false,"text":"나 다현킴이 인생샷 찌거줌 🤍🤍","gap":"2026.10.08"},{"me":true,"text":"다현언니는 사진을 잘 찍으니까."},{"me":false,"text":"모델이 미녀라서임"},{"me":true,"text":"제발 ㅈㄹㄴㄴ"},{"me":false,"text":"유나가 예쁜곤 그냥 타고난곤데"},{"me":false,"text":"읽씹함??"},{"me":false,"text":"아 읽씹햇냐고~~~~~"},{"me":false,"text":"아 정이안~~~!!!!"},{"me":false,"text":"정사장님. ㅈㅅ합니다. 사리겟읍니다."},{"me":true,"text":"ㅇㅋ"},{"me":false,"text":"아오 씨"},{"me":false,"text":"정사장 생일 ㅊㅋ요 선물은 관리동으로 보내드렷읍니다~ 순애씨랑 케키 마싯게 드십셔","gap":"2026.10.09"},{"me":true,"text":"ㄳㄳ"},{"me":true,"text":"근데 머 시킴?"},{"me":false,"text":"오면 까보삼 ㅎㅎ"},{"me":false,"text":"서프라이~쥬"},{"me":true,"text":"아 ㄱㅊ은거지?"},{"me":true,"text":"순애씨가 봐도 되는거 시켰지?"},{"me":false,"text":"아 당연하지;;"},{"me":false,"text":"날 뭘로 보고;"},{"me":true,"text":"노유나."},{"me":false,"text":"아 진짜라고 ㅋㅋㅋㅋ 멀쩡함"},{"me":true,"text":"믿을게^^"},{"me":false,"text":"순애씨도 좋아하실만한거임"},{"me":false,"text":"걱정 ㄴㄴ"},{"me":true,"text":"ㅇㅋ 일단 보고 다시 얘기함 ㅎ"}],"jiwoo":[{"me":false,"text":"이안아 생일 축하해"},{"me":false,"text":"나 안 보고 싶었나봐. 내 생일때도 연락 없더라 너?"},{"me":false,"text":"그래서 내가 먼저 연락 해봤어."},{"me":false,"text":"나 안 보고싶었어?"}]},"unread":{"jiwoo":true},"images":{"ijx8gfwar":"../images-a/b352d266585c.jpg","ibrihb3in":"../images-a/cbd7f89b760b.jpg","i780v2pu8":"../images-a/375e252b29f9.jpg","io4lwe0uh":"../images-a/e055da0a430a.jpg","ic81upm9d":"../images-a/8d2e7ff6389d.jpg","iuyfyp147":"../images-a/aaef802976e6.jpg","iwdksak2k":"../images-a/c0c69215b89d.jpg","impfh96jx":"../images-a/549d42349124.jpg","i9t6rk768":"../images-a/8301c09862c3.jpg","imf5xymbs":"../images-a/90b2379b4d91.jpg","ir255coif":"../images-a/bcee0f35e2e0.jpg","ivghwy21e":"../images-a/6da8e47c91be.jpg","i9n0vtt5u":"../images-a/6ea832429e80.jpg","i4xfvphf6":"../images-a/e4ca65d235c4.jpg","il96ny6hv":"../images-a/a4cb9884ad82.jpg","ied0nr315":"../images-a/e133f3e4bd76.jpg","izaoe38xc":"../images-a/3592defbf6ca.jpg","ina3z2bc8":"../images-a/6aaa170335c4.jpg","iehlw6cz5":"../images-a/86df8fa16afa.jpg","i2rvsyhlw":"../images-a/fccea174ad6d.jpg","i2rfe0p1p":"../images-a/48c957bc6acc.jpg","i39un3npp":"../images-a/9140d523c9f5.jpg","ieqolgz7m":"../images-a/f1d2133c386f.jpg","igjum3qey":"../images-a/005318fac0b2.jpg","if44ro2vg":"../images-a/a47d299a1b43.jpg","i6kpj1gdw":"../images-a/6de04336ab4e.jpg","irfux37w6":"../images-a/c02aa91951f2.jpg","iv9qoo6xj":"../images-a/f07bf43218f1.jpg","iomw3tsfr":"../images-a/fa2056fc5cf4.jpg","izlke8rw7":"../images-a/87673f6b11d2.jpg","iwy0fyoh4":"../images-a/8ea155802e4f.jpg","iy046m09i":"../images-a/5e05e948536c.jpg","iyp1yfxuq":"../images-a/c92d98bdd579.jpg","i88u12s24":"../images-a/8fc4408d49da.jpg","iclf3dpn9":"../images-a/aced685a14ad.jpg","i2px926uj":"../images-a/3c38df58ac49.jpg","i0lw4uff3":"../images-a/6994e7bbe8a7.jpg","i0gvr2bqa":"../images-a/f97271cef99b.jpg","ir302hndq":"../images-a/b8a283b46690.jpg","iodxx06m3":"../images-a/d66c04d2c0d2.jpg","iux1obybl":"../images-a/7b9926a7b5ca.jpg","ipu7vjesh":"../images-a/3f351e2997fa.jpg","ijbl6a1fz":"../images-a/46eef8a9cc63.jpg","ims3rhiou":"../images-a/9a8638fee901.jpg","ifjbb9ond":"../images-a/05611eb16f05.jpg","idoycpz74":"../images-a/ae1b0785d63d.jpg","im9xu9h9a":"../images-a/0f6dc8b49415.jpg","i0qxn8srt":"../images-a/0feed9ca2a3c.jpg","i78w1dq82":"../images-a/574ef83f6115.jpg","itwvz67hj":"../images-a/b80fe0ce82c2.jpg","ifr5ehooe":"../images-a/e51bdc02c37b.jpg","ic2c1rju7":"../images-a/39c132a71042.jpg","i3maho7fl":"../images-a/a108f2413055.jpg","ingfj8pcu":"../images-a/b2ea8857ddc1.jpg","itownmbkk":"../images-a/aac4e20dfbec.jpg","igj5a5eh0":"../images-a/2772b27f7da6.jpg","ivog53nsw":"../images-a/37976bb5c60e.jpg","ijaxvz9lx":"../images-a/20f0ef0e28ed.jpg","iwkpaywwq":"../images-a/c3553057cd44.jpg","iahe4galu":"../images-a/5d02cdc39c18.jpg","i5efes2x4":"../images-a/7c43f708c637.jpg","ixhacokp0":"../images-a/7692655c02aa.jpg","iscyyy3h3":"../images-a/7aeda0b84995.jpg","ifvaxvhjh":"../images-a/9adb7a0f4b59.jpg","ikrtf8lhh":"../images-a/714bba420c9e.jpg","i3otmaqav":"../images-a/dcbb945c355f.jpg","i15bxvmus":"../images-a/2eff09c93cdb.jpg","impa4o2ju":"../images-a/3d743e3d818e.jpg","iagzvkpf9":"../images-a/ffbd3071911e.jpg","ixumeewuf":"../images-a/5f1df00bd1c5.jpg","igfer4xr4":"../images-a/551f8849fffa.jpg","izlhhlczm":"../images-a/6ffffb1fda89.jpg","i8z7bqewb":"../images-a/0eb81c274e55.jpg","i7srw1ppa":"../images-a/696a0a615df4.jpg","icd2p2aiq":"../images-a/f3f7dd719ee4.jpg","il9nt5513":"../images-a/13adb6bf2407.jpg","iyb3cvgjo":"../images-a/e59cfb9b0055.jpg","ioqncf1vt":"../images-a/80fd7f3fd397.jpg","icewg44xa":"../images-a/f49a9f40b040.jpg","i4f3nwel3":"../images-a/648f6c8e4475.jpg","ipssntel8":"../images-a/62e574135558.jpg","ipk3xyhug":"../images-a/55d6d259d4ac.jpg","ibxjqvg89":"../images-a/83677c2dd919.jpg","ieyutp84l":"../images-a/d1181f174562.jpg","i19quvpm2":"../images-a/0e66cd786f0a.jpg","ie92vj7zz":"../images-a/7c43f708c637.jpg","ihda19jou":"../images-a/9cc414ece4c1.jpg","i3unnl53j":"../images-a/39b269ad00a7.jpg","ilb3wo55w":"../images-a/79fe84594042.jpg","i00xujtwe":"../images-a/14e815ad0bae.jpg","il29ddmcp":"../images-a/d91017cb1ebe.jpg","igtpaijar":"../images-a/a7a895df720c.jpg","iqtht9hgs":"../images-a/2e7757d2a110.jpg","ipx241htv":"../images-a/150dced56ae5.jpg","id2a7rvk8":"../images-a/643f9e49f877.jpg","iye4nbzib":"../images-a/66cc88307ad7.jpg","i3vzx48iz":"../images-b/3d62ef4d5a38.jpg","ircdvudud":"../images-b/0583ad44bf6e.jpg","i1d0idzji":"../images-b/df7faa2a271e.jpg","iqckna8g6":"../images-b/c16e5e06f21a.jpg","il217kfpz":"../images-b/85fb9858be37.jpg","igk0g8qr5":"../images-b/22d297f979aa.jpg","i8iuo3dj7":"../images-b/1fb38af78454.jpg","i9suni5fs":"../images-b/4eb70136acbd.jpg","ii4hrnnmh":"../images-b/d577335fabf8.jpg","ikqxjg9o3":"../images-b/e74dca570424.jpg","ii01i8c1w":"../images-b/eaa7db9c0968.jpg","ipxojhz7o":"../images-b/ae3dd17d1b88.jpg","i49z2pmae":"../images-b/ea99e929d050.jpg","i7lwuyaw7":"../images-b/96163f33e635.jpg","ieg2jn8w0":"../images-b/c81a2fcad581.jpg","ihljpuld8":"../images-b/d6fe71e1a5cf.jpg","iv8z72kwo":"../images-b/c85f14e563b5.jpg","iv6vtjmaa":"../images-b/d802c5050e36.jpg","iyrdlttg3":"../images-b/1f40df5f4cba.jpg","ioto1n4kd":"../images-b/659a65410937.jpg","i2cndub65":"../images-b/cd0646a8ff68.jpg","ins611w4d":"../images-b/3f6fdd2edbea.jpg","io45ycnqo":"../images-b/7a03b74fd9b8.jpg","if7mn3r9p":"../images-b/e2c555ee4b59.jpg","ipwdz3z74":"../images-b/cf448a956922.jpg","idjns5en9":"../images-b/3e483805c2c1.jpg","iccukmwem":"../images-b/f33dde0670ab.jpg","irj48p4sr":"../images-b/4a07ac15cb0a.jpg","iqt7bq3zr":"../images-b/822951e0e6cb.jpg","iqtw74j6e":"../images-b/f75fd73d94a6.jpg","ioatijoo9":"../images-b/6d2c40b6193a.jpg","idxfq2y2d":"../images-b/3a9eb0b1d43e.jpg","icg8aom6r":"../images-b/5f35fa2715a4.jpg","ijzuj7kf0":"../images-b/91bae7b02e80.jpg"}}</script>
+<script src="../vendor/supabase.js"></script>
+<script>window.MS_SITE="ian";window.MS_SB_URL="https://casrgrsudvyddxxjhron.supabase.co";window.MS_SB_KEY="sb_publishable_HAeJK5TfpsrhxzCmpkU2XA_HYefYMla";</script>
+<script id="app-script">
+(function(){
+const TOP_HTML='<title>이안의 SNS</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Playfair+Display:ital,wght@1,600&display=swap">\n';
+const SKELETON='<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>\n';
+const STYLE=document.getElementById('app-style').textContent;
+const SCRIPT=document.getElementById('app-script').textContent;
+const RESERVED=['home','search','me','following','inbox','dm','notif'];
+const DM_DEFAULT={ian:{mode:'reply',reply:'얀스테이로 쉬러 오세요🤍'},jiwoo:{mode:'blocked',reply:''},yanstay:{mode:'reply',reply:'현재 7, 8월 3호동은 마감되었습니다😭'}};
+let state;
+try{state=JSON.parse(document.getElementById('state').textContent)}catch(e){state={accounts:[],images:{}}}
+state.images=state.images||{};state.accounts=state.accounts||[];
+state.me=Object.assign({handle:'reader',name:'나',bio:'',followers:'0'},state.me||{});
+state.appName=state.appName||'midsummer';state.threads=state.threads||{};
+state.accounts.forEach(a=>{if(!Array.isArray(a.stories)){const lp=a.posts.slice().sort((x,y)=>(y.date||'').localeCompare(x.date||''))[0];a.stories=lp&&lp.images[0]?[{id:'s'+a.id,img:lp.images[0],dur:5,time:'3시간',text:''}]:[]}});
+if(!Array.isArray(state.notifs)){const ian=(state.accounts.find(a=>a.id==='ian')||{posts:[]}).posts.slice().sort((x,y)=>(y.date||'').localeCompare(x.date||''))[0];const ys=(state.accounts.find(a=>a.id==='yanstay')||{posts:[]}).posts.slice().sort((x,y)=>(y.date||'').localeCompare(x.date||''))[0];
+  state.notifs=[{id:'n1',from:'yanian.j',text:'님이 새 게시물을 올렸습니다.',time:'2시간',post:ian?ian.id:''},{id:'n2',from:'woo_S2',text:'님이 회원님을 팔로우하기 시작했습니다.',time:'1일',post:''},{id:'n3',from:'yan_stay',text:'님이 새 게시물을 올렸습니다.',time:'3일',post:ys?ys.id:''},{id:'n4',from:'yan_stay',text:'님이 회원님의 댓글을 좋아합니다.',time:'1주',post:''}]}
+state.accounts.forEach(a=>{if(!a.dm)a.dm=Object.assign({mode:'reply',reply:''},DM_DEFAULT[a.id]||{})});
+const ui={view:'home',acct:null,stack:[],q:'',edit:false,dirty:false,post:null,idx:{},sheet:null,draft:null,liked:new Set(),canEdit:false,art:null,saving:false,msg:'',armed:null,lastAuthor:'',dms:{},typing:null,alert:null,searching:false};
+ui.story=null;try{ui.seenSt=new Set(JSON.parse(localStorage.getItem(LS+'sns-story-seen')||'[]'))}catch(e){ui.seenSt=new Set()}
+function saveSeen(){try{localStorage.setItem(LS+'sns-story-seen',JSON.stringify([...ui.seenSt]))}catch(e){}}
+try{ui.notifSeen=localStorage.getItem(LS+'sns-notif-seen')==='1';ui.inboxSeen=localStorage.getItem(LS+'sns-inbox-seen')==='1'}catch(e){}
+try{ui.readDm=JSON.parse(localStorage.getItem(LS+'sns-dmread-v1')||'{}')||{}}catch(e){ui.readDm={}}
+try{ui.dmStep=JSON.parse(localStorage.getItem(LS+'sns-dmstep-v1')||'{}')||{}}catch(e){ui.dmStep={}}
+try{ui.dms=JSON.parse(localStorage.getItem(LS+'sns-dms-v3')||'{}')||{}}catch(e){ui.dms={}}
+
+try{ui.rname=localStorage.getItem(LS+'sns-rname')||''}catch(e){ui.rname=''}
+
+const SITE=window.MS_SITE;const LS=SITE+':';
+const SB=(window.supabase&&window.MS_SB_URL)?window.supabase.createClient(window.MS_SB_URL,window.MS_SB_KEY):null;
+ui.rcm={};ui.myId=null;ui.cmBusy=false;
+async function sbUser(create){if(!SB)return null;const {data}=await SB.auth.getSession();if(data&&data.session)return data.session.user;if(!create)return null;const r=await SB.auth.signInAnonymously();if(r.error)throw r.error;return r.data.user}
+async function loadCm(){if(!SB)return;try{const u=await sbUser(false);ui.myId=u?u.id:null;
+  const {data,error}=await SB.from('comments').select('id,post_id,author,text,reader,created_at').eq('site',SITE).order('created_at',{ascending:true}).limit(5000);if(error)throw error;
+  const m={};data.forEach(c=>{(m[c.post_id]=m[c.post_id]||[]).push({id:c.id,author:c.author,text:c.text,own:!!ui.myId&&c.reader===ui.myId})});ui.rcm=m;render()}catch(e){console.warn('comments',e)}}
+async function postCm(pid,au,tx){if(!SB){ui.alert='지금은 댓글을 달 수 없어요.';render();return}if(ui.cmBusy)return;ui.cmBusy=true;
+  try{await sbUser(true);const {error}=await SB.from('comments').insert({site:SITE,post_id:pid,author:au,text:tx});if(error)throw error;await loadCm()}
+  catch(e){console.warn(e);ui.alert='댓글을 올리지 못했어요. 잠시 후 다시 시도해 주세요.';render()}finally{ui.cmBusy=false}}
+async function delCm(id){if(!SB)return;try{const {error}=await SB.from('comments').delete().eq('id',id);if(error)throw error;await loadCm()}catch(e){ui.alert='댓글을 지우지 못했어요.';render()}}
+async function loadSettings(){if(!SB)return;try{const {data}=await SB.from('settings').select('app_name').eq('site',SITE).maybeSingle();if(data&&data.app_name){state.appName=data.app_name;render()}}catch(e){}}
+
+
+const DM_REMOTE='jiwoo';
+async function loadRemoteDm(){ui.dms[DM_REMOTE]=[];if(!SB){render();return}try{const u=await sbUser(false);if(!u){render();return}
+  const {data,error}=await SB.from('dms').select('from_me,text,created_at').eq('thread',DM_REMOTE).eq('reader',u.id).order('created_at',{ascending:true}).limit(2000);if(error)throw error;
+  ui.dms[DM_REMOTE]=data.map(r=>({me:r.from_me,text:r.text}));render()}catch(e){console.warn('dms',e)}}
+function sendRemoteDm(a,text){const id=a.id;const t=ui.dms[id]=ui.dms[id]||[];
+  const step=t.filter(m=>m.me).length;t.push({me:true,text});render();
+  const B=((a.dm&&a.dm.bundles)||[]).filter(x=>x&&x.length);const lines=step<B.length?B[step].slice():[];
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  ui.dmq=(ui.dmq||Promise.resolve()).then(async()=>{
+    try{await sbUser(true);const {error}=await SB.from('dms').insert({site:SITE,thread:id,from_me:true,text});if(error)throw error}
+    catch(e){console.warn(e);const m=t.find(x=>x.me&&x.text===text&&!x.failed);if(m)m.failed=true;render();return}
+    if(!lines.length)return;await wait(700);
+    for(let n=0;n<lines.length;n++){ui.typing=id;render();await wait(n?1100:1500);ui.typing=null;t.push({me:false,text:lines[n]});render();
+      try{await SB.from('dms').insert({site:SITE,thread:id,from_me:false,text:lines[n]})}catch(e){}}
+  });
+}
+
+function saveRcm(){try{localStorage.setItem(LS+'sns-rcm-v1',JSON.stringify(ui.rcm));localStorage.setItem(LS+'sns-rname',ui.rname)}catch(e){}}
+const allCm=p=>p.comments.concat((ui.rcm[p.id]||[]).map(c=>({...c,mine:!!c.own})));
+function saveDms(){try{const o={...ui.dms};if(SB)delete o[DM_REMOTE];localStorage.setItem(LS+'sns-dms-v3',JSON.stringify(o))}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const img=id=>state.images[id]||'';
+const acctById=id=>state.accounts.find(a=>a.id===id);
+const ME=()=>state.meId?acctById(state.meId):null;
+const others=()=>state.accounts.filter(a=>a.id!==state.meId);
+const acctByHandle=h=>{h=String(h||'').toLowerCase();return state.accounts.find(a=>String(a.handle).toLowerCase()===h)};
+function findPost(id){for(const a of state.accounts){const p=a.posts.find(x=>x.id===id);if(p)return [a,p]}return [null,null]}
+const COLORS=['#1d6f8a','#e8735a','#6b5ca5','#3f8f5a','#b5603a','#2f5f9e'];
+function avatar(a,size){
+  if(a&&a.avatar&&img(a.avatar)) return `<img class="av" src="${img(a.avatar)}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px">`;
+  const ch=((a&&(a.name||a.handle))||'?').trim().charAt(0).toUpperCase();
+  const c=COLORS[[...(a&&a.handle||'x')].reduce((s,x)=>s+x.charCodeAt(0),0)%COLORS.length];
+  return `<span class="av" style="width:${size}px;height:${size}px;background:${c};font-size:${Math.round(size*.42)}px">${esc(ch)}</span>`;
+}
+const meAv=size=>ME()?avatar(ME(),size):`<span class="av me" style="width:${size}px;height:${size}px" aria-hidden="true"></span>`;
+function rich(t){return esc(t).replace(/@([^\s@]+)/g,(m,h)=>`<a href="#" class="mention" data-h="${h}">@${h}</a>`)}
+function unameBtn(h){return acctByHandle(h)||String(h).toLowerCase()===String(state.me.handle).toLowerCase()?`<button class="uname" data-h="${esc(h)}">${esc(h)}</button>`:`<b>${esc(h)}</b>`}
+const I={
+  heart:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.6 8.2 3.6 4.5 7.2 4.5c2 0 3.4 1.1 4.8 2.9 1.4-1.8 2.8-2.9 4.8-2.9 3.6 0 5.6 3.7 4.5 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
+  heartF:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.6 8.2 3.6 4.5 7.2 4.5c2 0 3.4 1.1 4.8 2.9 1.4-1.8 2.8-2.9 4.8-2.9 3.6 0 5.6 3.7 4.5 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
+  chat:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.5L3.5 20.5l1.4-4.6A8.4 8.4 0 1 1 20.5 11.6z"/></svg>',
+  send:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>',
+  save:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-5-6 5z"/></svg>',
+  grid:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/></svg>',
+  multi:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h11a3 3 0 0 1 3 3v11h-2V6a1 1 0 0 0-1-1H7z"/><rect x="3" y="7" width="14" height="14" rx="2"/></svg>',
+  home:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"/></svg>',
+  homeF:'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10.3 12 3l9 7.3V20.5a1 1 0 0 1-1 1h-5.5v-6.5h-5v6.5H4a1 1 0 0 1-1-1z"/></svg>',
+  search:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20.5 20.5-5.2-5.2"/></svg>',
+  searchB:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20.5 20.5-5.2-5.2"/></svg>',
+  plusThin:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>',
+  plus:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8v8M8 12h8"/></svg>',
+  reels:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M3.5 8.5h17M9 3.5l3 5M14.5 3.5l3 5"/><path d="M10.5 11.5v5l4-2.5z" fill="currentColor"/></svg>',
+  back:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4 7 12l8 8"/></svg>',
+  menu:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  menu2:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h16M7 15h13"/></svg>',
+  note:'<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 18.5V6l11-2.5v11.5a2.5 2.5 0 1 1-2-2.4V7.3L11 8.9v9.6A2.5 2.5 0 1 1 9 16z"/></svg>',
+  dots:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>',
+  cam:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+};
+function fmtDate(d){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d||'');return m?`${m[1]}년 ${+m[2]}월 ${+m[3]}일`:esc(d||'')}
+const byDate=(x,y)=>(y.date||'').localeCompare(x.date||'');
+function setHash(){let h=ui.view==='profile'||ui.view==='dm'?ui.acct:ui.view;try{history.replaceState(null,'',h==='home'?'#home':'#'+h)}catch(e){}}
+function go(view,acct){ui.stack.push({view:ui.view,acct:ui.acct});if(ui.stack.length>30)ui.stack.shift();ui.view=view;ui.acct=acct||null;ui.post=null;setHash();render();window.scrollTo(0,0)}
+function back(){const s=ui.stack.pop()||{view:'home'};ui.view=s.view;ui.acct=s.acct;setHash();render();window.scrollTo(0,0)}
+function openHandle(h){
+  if(String(h).toLowerCase()===String(state.me.handle).toLowerCase()){ui.post=null;go('me');return}
+  const a=acctByHandle(h);if(a){ui.post=null;go('profile',a.id)}
+}
+
+/* ---------- views ---------- */
+function editPill(){return ui.canEdit?`<button class="pill ${ui.edit?'on':''}" data-act="toggleEdit">${ui.edit?'편집 끝내기':'편집'}</button>`:''}
+function topBar(){
+  if(ui.view==='home') return `<header class="top center"><div class="tl">${ui.edit?`<button class="ib" data-act="newPost" aria-label="새 게시물">${I.plusThin}</button>`:`<span class="deco" aria-hidden="true">${I.plusThin}</span>`}</div><button class="wordmark" data-act="toTop">${esc(state.appName)}<small>⌄</small></button><div class="tr">${editPill()}<button class="ib hasdot" data-act="goNotif" aria-label="알림">${I.heart}${!ui.notifSeen&&state.notifs.length?'<span class="rdot"></span>':''}</button></div></header>`;
+  if(ui.view==='notif') return `<header class="top line"><button class="ib" data-act="back" aria-label="뒤로">${I.back}</button><h1>알림</h1>${editPill()}</header>`;
+  if(ui.view==='inbox') return `<header class="top line"><button class="ib" data-act="back" aria-label="뒤로">${I.back}</button><h1>${esc(state.me.handle)}</h1>${editPill()}</header>`;
+  if(ui.view==='dm'){const d=acctById(ui.acct);return `<header class="top line"><button class="ib" data-act="back" aria-label="뒤로">${I.back}</button><button class="dmhead" data-go="${d?d.id:''}">${avatar(d,32)}<span style="min-width:0"><b>${esc(d?d.name||d.handle:'')}</b><span>${esc(d?d.handle:'')}</span></span></button></header>`}
+  if(ui.view==='search') return `<header class="top"><label class="sbox">${I.search.replace(/26/g,'18')}<input id="q" type="search" placeholder="검색" value="${esc(ui.q)}" autocomplete="off" aria-label="계정 검색"></label><button class="cancel" data-act="cancelSearch" ${ui.searching?'':'hidden'} id="qcancel">취소</button>${ui.searching?'':editPill()}</header>`;
+  if(ui.view==='me') return `<header class="top"><h1>${esc(state.me.handle)}</h1>${editPill()}<span class="deco" aria-hidden="true">${I.plus.replace(/26/g,'24')}</span><span class="deco" aria-hidden="true">${I.menu}</span></header>`;
+  if(ui.view==='following') return `<header class="top line"><button class="ib" data-act="back" aria-label="뒤로">${I.back}</button><h1>${esc(state.me.handle)}</h1>${editPill()}</header>`;
+  const a=acctById(ui.acct);
+  return `<header class="top"><button class="ib" data-act="back" aria-label="뒤로">${I.back}</button><h1>${esc(a?a.handle:'')}</h1>${editPill()}<span class="deco" aria-hidden="true">${I.dots}</span></header>`;
+}
+function stRank(a){const has=(a.stories||[]).length;if(!has)return 2;return a.stories.every(t=>ui.seenSt.has(t.id))?1:0}
+function storiesHTML(){
+  return `<nav class="stories" aria-label="스토리">
+  ${(()=>{const m=ME();const has=m&&(m.stories||[]).length;const seen=has&&m.stories.every(t=>ui.seenSt.has(t.id));
+    if(m&&ui.edit)return `<button class="story" data-act="editStories" data-id="${m.id}"><span class="ring ${has?'':'none'}">${meAv(has?58:62)}${has?'':'<span class="badge">+</span>'}</span><span class="lbl">내 스토리</span></button>`;
+    if(has)return `<button class="story" data-act="openStory" data-id="${m.id}"><span class="ring ${seen?'seen':''}">${meAv(58)}</span><span class="lbl">내 스토리</span></button>`;
+    return `<button class="story" data-act="goMe"><span class="ring none">${meAv(62)}<span class="badge">+</span></span><span class="lbl">내 스토리</span></button>`})()}
+  ${others().sort((a,b)=>stRank(a)-stRank(b)).map(x=>{const has=(x.stories||[]).length;const seen=has&&x.stories.every(t=>ui.seenSt.has(t.id));
+    const act=ui.edit?`data-act="editStories" data-id="${x.id}"`:has?`data-act="openStory" data-id="${x.id}"`:`data-go="${x.id}"`;
+    return `<button class="story" ${act}><span class="ring ${has?(seen?'seen':''):'nost'}">${avatar(x,58)}</span><span class="lbl">${esc(x.handle)}</span></button>`}).join('')}
+  ${ui.edit?`<button class="story" data-act="newAcct"><span class="ring none" style="border:2px dashed var(--line)"><span style="font-size:26px;color:var(--muted)">+</span></span><span class="lbl">계정 추가</span></button>`:''}
+  </nav>`;
+}
+function mediaHTML(p){
+  const n=p.images.length;if(!n)return'';const i=Math.min(ui.idx[p.id]||0,n-1);
+  return `<div class="media"><img src="${img(p.images[i])}" alt="" loading="lazy">${n>1?`<span class="count">${i+1}/${n}</span>`:''}${n>1&&i>0?`<button class="nav l" data-prev="${p.id}" aria-label="이전 사진">‹</button>`:''}${n>1&&i<n-1?`<button class="nav r" data-next="${p.id}" aria-label="다음 사진">›</button>`:''}</div>${n>1?`<div class="dots">${p.images.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>`:''}`;
+}
+function actsHTML(p){
+  const liked=ui.liked.has(p.id);
+  return `<div class="acts"><button data-like="${p.id}" class="${liked?'liked':''}" aria-label="좋아요">${liked?I.heartF:I.heart}</button><button data-open="${p.id}" aria-label="댓글">${I.chat}</button><span aria-hidden="true">${I.send}</span><span aria-hidden="true" style="margin-left:auto">${I.save}</span></div>
+  <div class="pb"><div class="likes">좋아요 ${((+p.likes||0)+(liked?1:0)).toLocaleString('ko-KR')}개</div>`;
+}
+function subline(p){return p.music?`<div class="music">${I.note} ${esc(p.music)}</div>`:p.location?`<div class="loc">${esc(p.location)}</div>`:''}
+function cardHTML(a,p){
+  return `<article class="card"><div class="ch"><button class="ib" style="padding:0" data-go="${a.id}" aria-label="${esc(a.handle)} 프로필">${avatar(a,34)}</button><div><button class="uname h" data-go="${a.id}">${esc(a.handle)}</button>${subline(p)}</div><span class="x deco" aria-hidden="true">${I.menu2}</span></div>
+  ${mediaHTML(p)}${actsHTML(p)}
+  ${p.caption?`<p class="cap"><button class="uname" data-go="${a.id}">${esc(a.handle)}</button> ${rich(p.caption)}</p>`:''}
+  ${allCm(p).length?`<button class="more" data-open="${p.id}">댓글 ${allCm(p).length}개 모두 보기</button>`:`<button class="more" data-open="${p.id}">댓글 달기...</button>`}
+  <div class="date">${fmtDate(p.date)}</div></div></article>`;
+}
+function homeView(){
+  const all=[];state.accounts.forEach(a=>a.posts.forEach(p=>all.push([a,p])));
+  all.sort((x,y)=>byDate(x[1],y[1]));
+  return storiesHTML()+(all.length?all.map(([a,p])=>cardHTML(a,p)).join(''):`<p class="empty">아직 게시물이 없어요.</p>`);
+}
+function resultsHTML(){
+  const q=ui.q.trim().toLowerCase();
+  const list=q?others().filter(a=>String(a.handle).toLowerCase().includes(q)||String(a.name||'').toLowerCase().includes(q)):others();
+  if(!list.length) return `<p class="empty">'${esc(ui.q)}'에 대한 검색 결과가 없어요.</p>`;
+  return `${q?'':`<div class="sec pad">추천 계정</div>`}${list.map(a=>`<button class="row" data-go="${a.id}">${avatar(a,46)}<span class="t"><b>${esc(a.handle)}</b><span>${esc(a.name||'')}${a.followers?` · 팔로워 ${esc(a.followers)}`:''}</span></span></button>`).join('')}`;
+}
+function hashN(t){let h=0;for(const c of String(t))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)}
+function exploreHTML(){
+  const all=[];state.accounts.forEach(a=>a.posts.forEach(p=>{if(p.images[0])all.push(p)}));
+  all.sort((x,y)=>hashN(x.id)%997-hashN(y.id)%997);
+  if(!all.length)return `<p class="empty">아직 게시물이 없어요.</p>`;
+  return `<div class="xgrid">${all.map((p,i)=>`<button class="tile ${i%10===2||i%10===6?'tall':''}" data-open="${p.id}" aria-label="게시물 열기"><img src="${img(p.images[0])}" alt="" loading="lazy">${p.images.length>1?`<span class="multi">${I.multi}</span>`:''}</button>`).join('')}</div>`;
+}
+function searchView(){return `<div id="results">${ui.searching?resultsHTML():exploreHTML()}</div>`}
+function notifView(){
+  const rows=state.notifs.map(n=>{const a=acctByHandle(n.from);const so=/^story:/.test(n.post||'')?acctById(n.post.slice(6)):null;const [,p]=n.post&&!so?findPost(n.post):[null,null];
+    return `<button class="nrow" ${ui.edit?`data-act="editNotif" data-id="${n.id}"`:so&&(so.stories||[]).length?`data-act="openStory" data-id="${so.id}"`:so?`data-go="${so.id}"`:p?`data-open="${p.id}"`:a?`data-go="${a.id}"`:''}>${a?avatar(a,44):`<span class="av" style="width:44px;height:44px;background:#9aa0aa">${esc((n.from||'?').charAt(0))}</span>`}<span class="nt"><b>${esc(n.from)}</b>${esc(n.text)}<small>${esc(n.time)}</small></span>${p&&p.images[0]?`<img class="th" src="${img(p.images[0])}" alt="">`:''}</button>`}).join('');
+  return `${ui.edit?`<div class="edrow" style="padding-bottom:6px"><button class="btn" data-act="newNotif">＋ 알림 추가</button><span class="hint" style="align-self:center">알림을 누르면 수정·삭제할 수 있어요.</span></div>`:''}<div class="sec pad">최근</div>${rows||'<p class="empty">새로운 알림이 없어요.</p>'}`;
+}
+function gridHTML(posts,canAdd){
+  if(!posts.length&&!canAdd) return `<div class="empty"><span class="cam">${I.cam}</span><b>게시물 없음</b></div>`;
+  return `<div class="grid">${canAdd?`<button class="tile new" data-act="newPost">+<br>새 게시물</button>`:''}${posts.map(p=>`<button class="tile" data-open="${p.id}" aria-label="게시물 열기">${p.images[0]?`<img src="${img(p.images[0])}" alt="" loading="lazy">`:''}${p.images.length>1?`<span class="multi">${I.multi}</span>`:''}</button>`).join('')}</div>`;
+}
+function profileView(){return profileBody(acctById(ui.acct),false)}
+function profileBody(a,isMe){
+  if(!a)return `<p class="empty">계정을 찾을 수 없어요.</p>`;
+  const posts=[...a.posts].sort(byDate);
+  return `<section class="prof pad">${avatar(a,86)}<div class="counts"><div><b>${posts.length}</b><small>게시물</small></div><div><b>${esc(a.followers||'0')}</b><small>팔로워</small></div>${isMe?`<button data-act="goFollowing"><b>${esc(a.following||'0')}</b><small>팔로잉</small></button>`:`<div><b>${esc(a.following||'0')}</b><small>팔로잉</small></div>`}</div></section>
+  <section class="who pad"><div class="nm">${esc(a.name)}</div>${a.bio?`<p class="bio">${rich(a.bio)}</p>`:''}${a.link?`<a class="lnk" href="${/^https?:\/\//.test(a.link)?esc(a.link):'#'}" target="_blank" rel="noopener">${esc(a.link.replace(/^https?:\/\//,''))}</a>`:''}</section>
+  <div class="prow pad">${isMe?(ui.edit?`<button class="pbtn" data-act="editProfile" data-id="${a.id}">프로필 편집</button><button class="pbtn" data-act="editLogo">상단 로고 글자</button>`:`<span class="pbtn">프로필 편집</span><span class="pbtn">프로필 공유</span>`):ui.edit?`<button class="pbtn" data-act="editProfile" data-id="${a.id}">프로필 편집</button><button class="pbtn" style="color:var(--heart)" data-act="delAcctAsk">${ui.armed==='acct'?'한 번 더 누르면 삭제':'계정 삭제'}</button>`:`<span class="pbtn">팔로잉 ⌄</span><button class="pbtn" data-act="openDm">메시지</button>`}</div>
+  <div class="tabline" aria-hidden="true">${I.grid}</div>${gridHTML(posts,ui.edit)}`;
+}
+function meView(){
+  if(ME())return profileBody(ME(),true);
+  const m=state.me;
+  return `<section class="prof pad">${meAv(86)}<div class="counts"><div><b>0</b><small>게시물</small></div><div><b>${esc(m.followers||'0')}</b><small>팔로워</small></div><button data-act="goFollowing"><b>${state.accounts.length}</b><small>팔로잉</small></button></div></section>
+  <section class="who pad"><div class="nm">${esc(m.name)}</div>${m.bio?`<p class="bio">${rich(m.bio)}</p>`:''}</section>
+  <div class="prow pad">${ui.edit?`<button class="pbtn" data-act="editMe">프로필 편집</button><span class="pbtn">프로필 공유</span>`:`<span class="pbtn">프로필 편집</span><span class="pbtn">프로필 공유</span>`}</div>
+  <div class="tabline" aria-hidden="true">${I.grid}</div>
+  <div class="empty"><span class="cam">${I.cam}</span><b>게시물 없음</b>아직 공유한 사진이 없어요.</div>`;
+}
+function followingView(){
+  return `<div class="sec pad">팔로잉 ${others().length}</div>${others().map(a=>`<button class="row" data-go="${a.id}">${avatar(a,46)}<span class="t"><b>${esc(a.handle)}</b><span>${esc(a.name||'')}</span></span><span class="tag">팔로잉</span></button>`).join('')}`;
+}
+function unreadN(id){if(!(state.unread||{})[id]||ui.readDm[id])return 0;const t=state.threads[id]||[];let n=0;for(let k=t.length-1;k>=0&&!t[k].me;k--)n++;return n}
+function inboxView(){
+  return `<div class="sec pad">메시지</div>${others().filter(a=>!a.dmHide||ui.edit).map(a=>{const t=thread(a.id);const last=t[t.length-1];const n=unreadN(a.id);
+    return `<button class="row ${n?'unread':''}" data-dm="${a.id}" ${a.dmHide?'style="opacity:.45"':''}>${avatar(a,52)}<span class="t"><b>${esc(a.name||a.handle)}</b><span>${a.dmHide?'(메시지함에서 숨김)':n?(n>=4?'4개 이상의 새 메시지':`새 메시지 ${n}개`):last?(last.failed?'전송 실패':esc((last.me?'나: ':'')+last.text)):esc(a.handle)}</span></span>${n?'<i class="udot"></i>':''}</button>`}).join('')}`;
+}
+function dmView(){
+  const a=acctById(ui.acct);if(!a)return `<p class="empty">계정을 찾을 수 없어요.</p>`;
+  const t=thread(a.id);
+  return `${ui.edit?`<div class="unbar">이 대화를 독자에게 '안 읽음'으로 보이기 <button class="btn" data-act="toggleUnread">${(state.unread||{})[a.id]?'켜짐':'꺼짐'}</button></div>`:''}<div class="thread" id="thread"><div class="intro">${avatar(a,84)}<b>${esc(a.name||a.handle)}</b>${esc(a.handle)} · 팔로워 ${esc(a.followers||'0')}<button class="pbtn" style="padding:6px 14px;margin-top:8px" data-go="${a.id}">프로필 보기</button></div>
+  ${t.map(m=>{const x=ui.edit&&m.k!=null?`<button class="g" data-act="gapTh" data-i="${m.k}">${m.gap?'틈 빼기':'↕ 틈'}</button><button class="x" data-act="delTh" data-i="${m.k}">삭제</button>`:'';const gl=typeof m.gap==='string'?m.gap:'';const gp=!m.gap?'':ui.edit&&m.k!=null?`<div class="dgap"><input data-gapi="${m.k}" value="${esc(gl)}" placeholder="날짜 적기 (비워두면 빈 틈)" aria-label="날짜"></div>`:`<div class="dgap">${esc(gl)}</div>`;return gp+(m.me?`<div class="msg me">${x}<div class="bub">${esc(m.text)}</div></div>${m.failed?'<div class="fail">전송되지 않음</div>':''}`:`<div class="msg">${avatar(a,28)}<div class="bub">${esc(m.text)}</div>${x}</div>`)}).join('')}
+  ${ui.typing===a.id?'<div class="typing">입력 중…</div>':''}</div>`;
+}
+function thread(id){return (state.threads[id]||[]).map((m,k)=>({...m,k})).concat(ui.dms[id]||[])}
+function composer(){return `<div class="composer"><form id="dmf">${ui.edit?`<span class="dmedit"><select id="dm-who" aria-label="보내는 사람"><option value="me">${esc((ME()||state.me).name||'나')}</option><option value="them">상대</option></select></span>`:''}<input id="dm-text" placeholder="메시지 보내기..." autocomplete="off" aria-label="메시지"><button>보내기</button></form></div>`}
+function alertHTML(){return ui.alert?`<div class="ov"><div class="alert" role="alertdialog"><p>${esc(ui.alert)}</p><button data-act="closeAlert">확인</button></div></div>`:''}
+function sendDm(text){
+  const a=acctById(ui.acct);if(!a||!text)return;
+  const t=ui.dms[a.id]=ui.dms[a.id]||[];
+  const dm=a.dm||{mode:'reply',reply:''};
+  if(dm.mode==='blocked'){t.push({me:true,text,failed:true});saveDms();ui.alert='메세지를 전송할 수 없습니다.';render();return}
+  if(SB&&a.id===DM_REMOTE){sendRemoteDm(a,text);return}
+  t.push({me:true,text});saveDms();
+  const B=(dm.bundles||[]).filter(x=>x&&x.length);
+  if(B.length){const id=a.id;const step=ui.dmStep[id]||0;
+    if(step<B.length){ui.dmStep[id]=step+1;try{localStorage.setItem(LS+'sns-dmstep-v1',JSON.stringify(ui.dmStep))}catch(e){}
+      const lines=B[step].slice();const wait=ms=>new Promise(r=>setTimeout(r,ms));
+      ui.dmq=(ui.dmq||Promise.resolve()).then(async()=>{await wait(700);for(let n=0;n<lines.length;n++){ui.typing=id;render();await wait(n?1100:1500);ui.typing=null;(ui.dms[id]=ui.dms[id]||[]).push({me:false,text:lines[n]});saveDms();render()}})}
+    render();return}
+  if(dm.reply){ui.typing=a.id;render();const id=a.id;
+    setTimeout(()=>{ui.typing=null;(ui.dms[id]=ui.dms[id]||[]).push({me:false,text:dm.reply});saveDms();render()},1100)}
+  else render();
+}
+function tabBar(){
+  const v=ui.view;
+  return `<nav class="tabbar" aria-label="메뉴">
+  <button class="ib ${v==='home'?'cur':''}" data-act="goHome" aria-label="홈">${v==='home'?I.homeF:I.home}</button>
+  <span class="deco" aria-hidden="true">${I.reels}</span>
+  <button class="ib hasdot ${v==='inbox'?'cur':''}" data-act="goInbox" aria-label="메시지">${I.send}${others().some(x=>!x.dmHide&&unreadN(x.id))?'<span class="rdot" style="top:12px;right:16px"></span>':''}</button>
+  <button class="ib ${v==='search'?'cur':''}" data-act="goSearch" aria-label="검색">${v==='search'?I.searchB:I.search}</button>
+  <button class="ib ${v==='me'||v==='following'?'on cur':''}" data-act="goMe" aria-label="내 프로필">${ME()?`<span class="tabav">${avatar(ME(),28)}</span>`:'<span class="tabme"></span>'}</button>
+  </nav>`;
+}
+function saveBar(){
+  if(!ui.canEdit||(!ui.dirty&&!ui.msg))return'';
+  return `<div class="savebar" role="status"><span>${esc(ui.msg||'저장하지 않은 변경사항이 있어요. 저장해야 독자에게도 보여요.')}</span>${ui.dirty?`<button class="btn" data-act="save" ${ui.saving?'disabled':''}>${ui.saving?'저장 중…':'저장'}</button>`:''}</div>`;
+}
+function storyAccts(){const m=ME();return (m?[m]:[]).concat(others().sort((a,b)=>stRank(a)-stRank(b))).filter(a=>(a.stories||[]).length)}
+function storyHTML(){
+  const S=ui.story;if(!S)return'';const a=acctById(S.acct);if(!a||!a.stories.length)return'';const st=a.stories[S.i];
+  if(st.share!=null){const shh=String(st.share||'').replace(/^@/,'').trim();const sa=acctByHandle(shh)||{handle:shh||'?'};
+    return `<div class="sv" id="sv"><div class="st" id="svst"><div class="sbg" style="background:${esc(st.bg||'#2b2b2b')}"></div>
+  <div class="shcard">${img(st.img)?`<img src="${img(st.img)}" alt="" draggable="false">`:`<div class="shbg" style="background:${esc(st.sbg||'#f2a7b8')}"></div>`}<div class="shby">${avatar(sa,22)}<span>${esc(sa.handle)}</span></div>${st.stext?`<div class="shtx ${img(st.img)?'low':''}"><span>${rich(st.stext)}</span></div>`:''}</div>
+  <div class="bars">${a.stories.map((_,k)=>`<i><b style="width:${k<S.i?100:0}%" ${k===S.i?'id="svbar"':''}></b></i>`).join('')}</div>
+  <div class="shd">${avatar(a,32)}<b>${esc(a.handle)}</b><small>${esc(st.time||'')}</small><button class="sx" data-act="closeStory" aria-label="닫기">×</button></div>
+  ${st.text?`<div class="stxt share"><span>${rich(st.text)}</span></div>`:''}</div></div>`}
+  return `<div class="sv" id="sv"><div class="st" id="svst">${st&&img(st.img)?`<img class="simg" src="${img(st.img)}" alt="" draggable="false">`:`<div class="sbg" style="background:${esc(st.bg||'#1f2a44')}"></div>`}
+  <div class="bars">${a.stories.map((_,k)=>`<i><b style="width:${k<S.i?100:0}%" ${k===S.i?'id="svbar"':''}></b></i>`).join('')}</div>
+  <div class="shd">${avatar(a,32)}<b>${esc(a.handle)}</b><small>${esc(st.time||'')}</small><button class="sx" data-act="closeStory" aria-label="닫기">×</button></div>
+  ${st.text?`<div class="stxt ${img(st.img)?'':'mid'}"><span>${rich(st.text)}</span></div>`:''}</div></div>`;
+}
+function openStory(id,i){const a=acctById(id);if(!a||!a.stories.length)return;const ord=storyAccts().map(x=>x.id);const k0=ord.indexOf(id);ui.story={acct:id,i:i||0,el:0,paused:false,last:0,order:k0>=0?ord.slice(k0):[id]};ui.post=null;render();startStory()}
+function closeStory(){ui.story=null;if(ui.raf)cancelAnimationFrame(ui.raf);render()}
+function markSeen(){const S=ui.story;if(!S)return;const a=acctById(S.acct);const st=a&&a.stories[S.i];if(st&&!ui.seenSt.has(st.id)){ui.seenSt.add(st.id);saveSeen()}}
+function stepStory(dir){
+  const S=ui.story;if(!S)return;const a=acctById(S.acct);
+  if(dir>0){if(S.i<a.stories.length-1){S.i++}else{const list=S.order;const k=list.indexOf(S.acct);
+      const nxt=list.slice(k+1).find(id=>id!==S.acct);if(nxt&&acctById(nxt)&&acctById(nxt).stories.length){S.acct=nxt;S.i=0}else{closeStory();return}}}
+  else{if(S.i>0)S.i--;else{const list=S.order;const k=list.indexOf(S.acct);if(k>0){S.acct=list[k-1];S.i=acctById(S.acct).stories.length-1}}}
+  S.el=0;S.last=0;render();startStory();
+}
+function startStory(){
+  if(ui.raf)cancelAnimationFrame(ui.raf);markSeen();bindStory();
+  const loop=ts=>{const S=ui.story;if(!S)return;const a=acctById(S.acct);const st=a.stories[S.i];const dur=(+st.dur||5)*1000;
+    if(S.last&&!S.paused&&!document.hidden)S.el+=ts-S.last;S.last=ts;
+    const bar=document.getElementById('svbar');if(bar)bar.style.width=Math.min(100,S.el/dur*100)+'%';
+    if(S.el>=dur){stepStory(1);return}
+    ui.raf=requestAnimationFrame(loop)};
+  ui.raf=requestAnimationFrame(loop);
+}
+function bindStory(){
+  const st=document.getElementById('svst'),sv=document.getElementById('sv');if(!st)return;
+  let down=0,downX=0;
+  st.onpointerdown=e=>{if(e.target.closest('[data-act]'))return;down=performance.now();downX=e.clientX;ui.story.paused=true;sv.classList.add('hold');try{st.setPointerCapture(e.pointerId)}catch(_){}};
+  const up=e=>{if(!down)return;const held=performance.now()-down;down=0;if(!ui.story)return;ui.story.paused=false;sv.classList.remove('hold');
+    if(held<220){const r=st.getBoundingClientRect();stepStory(downX-r.left<r.width/3?-1:1)}};
+  st.onpointerup=up;st.onpointercancel=()=>{down=0;if(ui.story){ui.story.paused=false;sv.classList.remove('hold')}};
+  st.oncontextmenu=e=>e.preventDefault();
+}
+function postSheet(){
+  if(!ui.post)return'';
+  const [a,p]=findPost(ui.post);if(!p)return'';
+  return `<div class="ov" data-close="1"><article class="sheet" role="dialog" aria-label="게시물">
+  <div class="ch" style="border-bottom:1px solid var(--line)">${avatar(a,32)}<div><button class="uname h" data-go="${a.id}">${esc(a.handle)}</button>${subline(p)}</div><button class="x ib" data-act="closePost" aria-label="닫기" style="font-size:22px;line-height:1">×</button></div>
+  ${mediaHTML(p)}${actsHTML(p)}
+  ${p.caption?`<p class="cap"><button class="uname" data-go="${a.id}">${esc(a.handle)}</button> ${rich(p.caption)}</p>`:''}
+  ${allCm(p).map(c=>`<div class="cm"><p>${unameBtn(c.author)} ${rich(c.text)}</p>${c.mine?`<button class="del" data-delmine="${c.id}">삭제</button>`:ui.edit?`<button class="del" data-delcm="${c.id}">삭제</button>`:''}</div>`).join('')}
+  ${ui.edit?`<div class="cmadd"><input id="cm-author" placeholder="작성자 아이디" value="${esc(ui.lastAuthor)}"><input id="cm-text" placeholder="댓글 내용"><button class="btn" data-act="addCm">공식 댓글 추가</button></div><p class="hint" style="margin:4px 0 0">공식 댓글은 저장하면 모든 독자에게 보여요.</p>`:`<div class="cmadd"><input id="rc-author" placeholder="내 아이디" value="${esc(ui.rname)}" maxlength="30"><input id="rc-text" placeholder="댓글 달기..." maxlength="300"><button class="btn" data-act="addMine">게시</button></div><p class="hint" style="margin:4px 0 0">댓글은 모든 독자에게 보여요. 내가 단 댓글은 이 기기에서 지울 수 있어요.</p>`}
+  <div class="date">${fmtDate(p.date)}</div></div>
+  ${ui.edit?`<div class="edrow"><button class="btn" data-act="editPost">게시물 수정</button><button class="btn danger" data-act="delPost">${ui.armed==='post'?'한 번 더 누르면 삭제':'게시물 삭제'}</button></div>`:''}
+  </article></div>`;
+}
+function shareItem(t,i){
+  return `<div class="sitem"><div class="sth sh" style="background:${esc(t.bg||'#2b2b2b')}"><i style="${img(t.img)?`background-image:url(${img(t.img)})`:`background:${esc(t.sbg||'#f2a7b8')}`}"></i><b>공유</b></div><div class="sf">
+    <div class="two"><label>보이는 시간<select data-sfi="${i}" data-k="dur">${[3,4,5,6,7,8,10].map(n=>`<option value="${n}" ${+t.dur===n?'selected':''}>${n}초</option>`).join('')}</select></label><label>시간 표시<input data-sfi="${i}" data-k="time" value="${esc(t.time)}" placeholder="3시간"></label></div>
+    <label>원래 스토리 올린 사람 아이디<input data-sfi="${i}" data-k="share" value="${esc(t.share)}" placeholder="uuuharam"></label>
+    <label>원래 스토리 사진 (선택)<input type="file" accept="image/*" data-sfimg="${i}"></label>${img(t.img)?`<button type="button" class="btn" data-act="stNoImg" data-i="${i}">사진 빼기</button>`:`<label>원래 스토리 배경색<input type="color" data-sfi="${i}" data-k="sbg" value="${esc(t.sbg||'#f2a7b8')}"></label>`}
+    <label>원래 스토리에 적힌 글 (@아이디 가능)<textarea data-sfi="${i}" data-k="stext">${esc(t.stext||'')}</textarea></label>
+    <div class="two"><label>내가 덧붙인 글<input data-sfi="${i}" data-k="text" value="${esc(t.text)}" placeholder="ㄳ"></label><label>바깥 배경색<input type="color" data-sfi="${i}" data-k="bg" value="${esc(t.bg||'#2b2b2b')}"></label></div>
+    <div class="sb">${i>0?`<button type="button" class="btn" data-act="stUp" data-i="${i}">▲ 위로</button>`:''}<button type="button" class="btn danger" data-act="stDel" data-i="${i}">빼기</button></div></div></div>`;
+}
+function sheetHTML(){
+  const s=ui.sheet;if(!s)return'';const d=ui.draft;
+  if(s.type==='profile'||s.type==='newAcct') return `<div class="ov"><div class="sheet"><form class="f" id="pf">
+    <h2>${s.type==='newAcct'?'계정 추가':'프로필 편집'}</h2>
+    <div style="display:flex;gap:12px;align-items:center">${avatar(d,64)}<label style="flex:1">프로필 사진<input type="file" id="pf-av" accept="image/*"></label></div>
+    <div class="two"><label>아이디<input id="pf-handle" value="${esc(d.handle)}" required></label><label>이름<input id="pf-name" value="${esc(d.name)}"></label></div>
+    <label>소개 (@아이디 를 쓰면 남색 링크가 돼요)<textarea id="pf-bio">${esc(d.bio)}</textarea></label>
+    <div class="two"><label>팔로워<input id="pf-fol" value="${esc(d.followers)}"></label><label>팔로잉<input id="pf-fing" value="${esc(d.following)}"></label></div>
+    <label>링크 (선택)<input id="pf-link" value="${esc(d.link)}" placeholder="https://"></label>
+    <div class="two"><label>메시지를 받으면<select id="pf-dmmode"><option value="reply" ${d.dm.mode!=='blocked'?'selected':''}>자동 답장</option><option value="blocked" ${d.dm.mode==='blocked'?'selected':''}>'전송할 수 없음' 팝업</option></select><span style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" id="pf-dmhide" ${d.dmHide?'checked':''} style="width:auto"> 메시지함에서 숨기기</span></label><label>자동 답장 내용<input id="pf-dmreply" value="${esc(d.dm.reply)}" placeholder="비워두면 답장 없음"></label></div>
+    <label>순서대로 오는 답장 묶음 (독자가 보낼 때마다 다음 묶음, 한 줄 = 말풍선 하나, 묶음 사이는 --- 한 줄)<textarea id="pf-dmb" rows="6">${esc(((d.dm&&d.dm.bundles)||[]).map(b=>b.join('\n')).join('\n---\n'))}</textarea></label>
+    <div class="frow"><button type="button" class="btn" data-act="cancelSheet">취소</button><button class="btn primary">완료</button></div></form></div></div>`;
+  if(s.type==='me') return `<div class="ov"><div class="sheet"><form class="f" id="mf">
+    <h2>'나' 프로필 편집</h2><p class="hint" style="margin:0">독자가 보는 자기 계정이에요. 프로필 사진은 베이비블루로 고정돼요.</p>
+    <div class="two"><label>아이디<input id="mf-handle" value="${esc(d.handle)}" required></label><label>이름<input id="mf-name" value="${esc(d.name)}"></label></div>
+    <label>소개<textarea id="mf-bio">${esc(d.bio)}</textarea></label>
+    <div class="two"><label>팔로워<input id="mf-fol" value="${esc(d.followers)}"></label><label>상단 로고 글자<input id="mf-app" value="${esc(d.appName)}"></label></div>
+    <div class="frow"><button type="button" class="btn" data-act="cancelSheet">취소</button><button class="btn primary">완료</button></div></form></div></div>`;
+  if(s.type==='stories'){const a=acctById(d.acct);return `<div class="ov"><div class="sheet"><form class="f" id="sf">
+    <h2>${esc(a?a.handle:'')} 스토리 편집</h2><p class="hint" style="margin:0">위에서부터 순서대로 보여요. 사진은 세로(9:16)가 가장 잘 맞아요.</p>
+    <div class="sedit">${d.list.map((t,i)=>t.share!=null?shareItem(t,i):`<div class="sitem">${img(t.img)?`<img src="${img(t.img)}" alt="">`:`<div class="sth" style="background:${esc(t.bg||'#1f2a44')}">${esc((t.text||'글').slice(0,20))}</div>`}<div class="sf">
+      <div class="two"><label>보이는 시간<select data-sfi="${i}" data-k="dur">${[3,4,5,6,7,8,10].map(n=>`<option value="${n}" ${+t.dur===n?'selected':''}>${n}초</option>`).join('')}</select></label><label>시간 표시<input data-sfi="${i}" data-k="time" value="${esc(t.time)}" placeholder="3시간"></label></div>
+      <label>${img(t.img)?'사진 위 글 (선택)':'글 (@아이디 를 쓰면 언급 표시가 돼요)'}${img(t.img)?`<input data-sfi="${i}" data-k="text" value="${esc(t.text)}">`:`<textarea data-sfi="${i}" data-k="text">${esc(t.text)}</textarea>`}</label>${img(t.img)?'':`<label>배경색<input type="color" data-sfi="${i}" data-k="bg" value="${esc(t.bg||'#1f2a44')}"></label>`}
+      <div class="sb">${i>0?`<button type="button" class="btn" data-act="stUp" data-i="${i}">▲ 위로</button>`:''}<button type="button" class="btn danger" data-act="stDel" data-i="${i}">빼기</button></div></div></div>`).join('')||'<p class="hint">아직 스토리가 없어요. 아래에서 사진을 추가하세요.</p>'}</div>
+    <label>사진 추가 (여러 장)<input type="file" id="sf-files" accept="image/*" multiple></label><button type="button" class="btn" data-act="stAddText">＋ 글만 있는 스토리 추가</button><button type="button" class="btn" data-act="stAddShare">＋ 다른 사람 스토리 공유하기</button><span class="hint">${esc(s.status||'')}</span>
+    <div class="frow"><button type="button" class="btn" data-act="cancelSheet">취소</button><button type="button" class="btn" data-act="stPreview">저장하고 미리보기</button><button class="btn primary">완료</button></div></form></div></div>`}
+  if(s.type==='logo') return `<div class="ov"><div class="sheet"><form class="f" id="lf"><h2>상단 로고 글자</h2><label>홈 화면 맨 위에 보이는 글자<input id="lf-app" value="${esc(d.appName)}" required></label><div class="frow"><button type="button" class="btn" data-act="cancelSheet">취소</button><button class="btn primary">완료</button></div></form></div></div>`;
+  if(s.type==='notif') return `<div class="ov"><div class="sheet"><form class="f" id="nf">
+    <h2>${d.id?'알림 수정':'알림 추가'}</h2>
+    <div class="two"><label>보낸 계정 아이디<input id="nf-from" value="${esc(d.from)}" list="nf-acc" required></label><label>시간 표시 (예: 2시간, 3일)<input id="nf-time" value="${esc(d.time)}"></label></div>
+    <datalist id="nf-acc">${state.accounts.map(a=>`<option value="${esc(a.handle)}">`).join('')}</datalist>
+    <label>내용 (아이디 바로 뒤에 붙어요)<input id="nf-text" value="${esc(d.text)}" placeholder="님이 회원님의 게시물을 좋아합니다."></label>
+    <label>누르면 열릴 게시물·스토리 (선택)<select id="nf-post"><option value="">없음 (계정 프로필로 이동)</option>${state.accounts.map(a=>`<option value="story:${a.id}" ${d.post==='story:'+a.id?'selected':''}>${esc(a.handle)}의 스토리 열기</option>`).join('')}${state.accounts.flatMap(a=>a.posts.slice().sort((x,y)=>(y.date||'').localeCompare(x.date||'')).map(p=>`<option value="${p.id}" ${p.id===d.post?'selected':''}>${esc(a.handle)} · ${esc(p.date)} · ${esc((p.caption||'').slice(0,14))}</option>`)).join('')}</select></label>
+    <div class="frow">${d.id?`<button type="button" class="btn danger" data-act="delNotif" style="margin-right:auto">${ui.armed==='notif'?'한 번 더 누르면 삭제':'삭제'}</button>`:''}<button type="button" class="btn" data-act="cancelSheet">취소</button><button class="btn primary">완료</button></div></form></div></div>`;
+  if(s.type==='post') return `<div class="ov"><div class="sheet"><form class="f" id="ptf">
+    <h2>${s.edit?'게시물 수정':'새 게시물'}</h2>
+    ${s.edit?'':`<label>올릴 계정<select id="pt-acct">${state.accounts.map(a=>`<option value="${a.id}" ${a.id===d.acct?'selected':''}>${esc(a.handle)}</option>`).join('')}</select></label>`}
+    <label>사진 (여러 장 가능, 첫 장이 대표 사진)<input type="file" id="pt-files" accept="image/*" multiple></label>
+    <div class="thumbs">${d.images.map((id,k)=>`<div><img src="${img(id)}" alt="">${k>0?`<button type="button" class="mv" data-first="${k}" aria-label="대표로">★</button>`:''}<button type="button" data-rmimg="${k}" aria-label="사진 빼기">×</button></div>`).join('')||'<span class="hint">아직 사진이 없어요.</span>'}</div>
+    <span class="hint">${esc(s.status||'')}</span>
+    <label>본문 (@아이디 를 쓰면 남색 링크가 돼요)<textarea id="pt-cap">${esc(d.caption)}</textarea></label>
+    <div class="two"><label>날짜<input type="date" id="pt-date" value="${esc(d.date)}"></label><label>좋아요 수<input id="pt-likes" inputmode="numeric" value="${esc(d.likes)}"></label></div>
+    <div class="two"><label>위치 (선택)<input id="pt-loc" value="${esc(d.location)}"></label><label>음악 (선택, 예: 가수 · 노래)<input id="pt-music" value="${esc(d.music||'')}"></label></div>
+    <div class="frow"><button type="button" class="btn" data-act="cancelSheet">취소</button><button class="btn primary">${s.edit?'완료':'올리기'}</button></div></form></div></div>`;
+  return '';
+}
+function render(){
+  if(ME()){state.me.handle=ME().handle;state.me.name=ME().name}
+  const v=ui.view;
+  const body=v==='home'?homeView():v==='notif'?notifView():v==='search'?searchView():v==='me'?meView():v==='following'?followingView():v==='inbox'?inboxView():v==='dm'?dmView():profileView();
+  const keep=v==='dm'&&$('#dm-text')?$('#dm-text').value:'';
+  $('#app').innerHTML=`<div class="shell">${topBar()}<main>${body}</main></div>${v==='dm'?composer():tabBar()}${saveBar()}${postSheet()}${sheetHTML()}${alertHTML()}${storyHTML()}`;
+  bindForms();
+  if(v==='dm'){const i=$('#dm-text');if(i){i.value=keep;if(!ui.alert&&!ui.sheet)i.focus({preventScroll:true})}window.scrollTo(0,document.body.scrollHeight)}
+}
+
+/* ---------- events ---------- */
+function readForm(){
+  const d=ui.draft,t=ui.sheet&&ui.sheet.type;if(!d)return;
+  if(t==='stories'){document.querySelectorAll('[data-sfi]').forEach(el=>{const it=ui.draft.list[+el.dataset.sfi];if(it)it[el.dataset.k]=el.dataset.k==='dur'?+el.value:el.value});return}
+  if(t==='post'){d.caption=$('#pt-cap').value;d.date=$('#pt-date').value;d.likes=$('#pt-likes').value;d.location=$('#pt-loc').value;d.music=$('#pt-music').value;const s=$('#pt-acct');if(s)d.acct=s.value}
+  else if(t==='notif'){d.from=$('#nf-from').value.trim();d.time=$('#nf-time').value;d.text=$('#nf-text').value;d.post=$('#nf-post').value}
+  else if(t==='me'){d.handle=$('#mf-handle').value.trim();d.name=$('#mf-name').value;d.bio=$('#mf-bio').value;d.followers=$('#mf-fol').value;d.appName=$('#mf-app').value.trim()}
+  else if(t){d.handle=$('#pf-handle').value.trim();d.name=$('#pf-name').value;d.bio=$('#pf-bio').value;d.followers=$('#pf-fol').value;d.following=$('#pf-fing').value;d.link=$('#pf-link').value.trim();d.dm={mode:$('#pf-dmmode').value,reply:$('#pf-dmreply').value};{const tb=$('#pf-dmb');if(tb)d.dm.bundles=tb.value.split(/\n\s*---\s*\n/).map(x=>x.split('\n').map(y=>y.trim()).filter(Boolean)).filter(b=>b.length)}const hc=$('#pf-dmhide');if(hc)d.dmHide=hc.checked}
+}
+async function toDataURL(file,max){
+  const url=URL.createObjectURL(file);
+  try{const im=new Image();await new Promise((r,j)=>{im.onload=r;im.onerror=j;im.src=url});
+    const s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+    const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*s);c.height=Math.round(im.naturalHeight*s);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.8);
+  }finally{URL.revokeObjectURL(url)}
+}
+function changed(){ui.dirty=true;ui.msg=''}
+function commitStories(){const a=acctById(ui.draft.acct);if(a)a.stories=ui.draft.list.map(t=>({...t}));ui.sheet=null;ui.draft=null;changed()}
+function bindForms(){
+  const sf=$('#sf');if(sf){sf.onsubmit=e=>{e.preventDefault();readForm();commitStories();render()};
+    document.querySelectorAll('[data-sfimg]').forEach(inp=>inp.onchange=async ev=>{const f=ev.target.files[0];if(!f)return;readForm();const it=ui.draft.list[+inp.dataset.sfimg];try{const id='i'+uid();state.images[id]=await toDataURL(f,720);it.img=id}catch(err){}render()});
+    $('#sf-files').onchange=async ev=>{const fs=[...ev.target.files];if(!fs.length)return;readForm();ui.sheet.status='사진을 준비하는 중…';render();for(const f of fs){try{const id='i'+uid();state.images[id]=await toDataURL(f,720);ui.draft.list.push({id:'s'+uid(),img:id,dur:5,time:'방금',text:''})}catch(err){}}ui.sheet.status='';render()}}
+  const dmf=$('#dmf');if(dmf)dmf.onsubmit=e=>{e.preventDefault();const i=$('#dm-text');const v=i.value.trim();if(!v)return;i.value='';
+    if(ui.edit){const w=$('#dm-who');(state.threads[ui.acct]=state.threads[ui.acct]||[]).push({me:!w||w.value==='me',text:v});changed();render();return}sendDm(v)};
+  const pf=$('#pf');if(pf){
+    pf.onsubmit=e=>{e.preventDefault();readForm();if(!ui.draft.handle){$('#pf-handle').focus();return}
+      if(ui.sheet.type==='newAcct'){let id=(ui.draft.handle.replace(/[^A-Za-z0-9_~-]/g,'')||'acct').toLowerCase();if(RESERVED.includes(id))id+='1';while(acctById(id))id+='1';state.accounts.push({...ui.draft,id,posts:[]});ui.sheet=null;ui.draft=null;changed();go('profile',id);return}
+      Object.assign(acctById(ui.sheet.id||ui.acct),ui.draft);ui.sheet=null;ui.draft=null;changed();render()};
+    $('#pf-av').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;readForm();const id='i'+uid();state.images[id]=await toDataURL(f,320);ui.draft.avatar=id;render()}}
+  const lf=$('#lf');if(lf)lf.onsubmit=e=>{e.preventDefault();const v=$('#lf-app').value.trim();if(v)state.appName=v;ui.sheet=null;ui.draft=null;changed();render()};
+  const nf=$('#nf');if(nf)nf.onsubmit=e=>{e.preventDefault();readForm();const d=ui.draft;if(!d.from){$('#nf-from').focus();return}if(d.id){Object.assign(state.notifs.find(n=>n.id===d.id),d)}else state.notifs.unshift({...d,id:'n'+uid()});ui.sheet=null;ui.draft=null;ui.armed=null;changed();render()};
+  const mf=$('#mf');if(mf){mf.onsubmit=e=>{e.preventDefault();readForm();const d=ui.draft;if(!d.handle){$('#mf-handle').focus();return}
+    state.appName=d.appName||state.appName;state.me={handle:d.handle,name:d.name,bio:d.bio,followers:d.followers};ui.sheet=null;ui.draft=null;changed();render()}}
+  const ptf=$('#ptf');if(ptf){
+    ptf.onsubmit=e=>{e.preventDefault();readForm();const d=ui.draft;
+      if(!d.images.length){ui.sheet.status='사진을 한 장 이상 넣어 주세요.';render();return}
+      const p={id:d.id||'p'+uid(),images:d.images,caption:d.caption,date:d.date,likes:String(d.likes).replace(/[^0-9]/g,'')||'0',location:d.location,music:d.music||'',comments:d.comments||[]};
+      if(ui.sheet.edit){const [a]=findPost(p.id);const k=a.posts.findIndex(x=>x.id===p.id);a.posts[k]=p}
+      else{const a=acctById(d.acct)||state.accounts[0];if(!a){ui.sheet.status='먼저 계정을 만들어 주세요.';render();return}a.posts.push(p)}
+      ui.sheet=null;ui.draft=null;ui.post=p.id;changed();render()};
+    $('#pt-files').onchange=async ev=>{const fs=[...ev.target.files];if(!fs.length)return;readForm();ui.sheet.status='사진을 준비하는 중…';render();
+      for(const f of fs){try{const id='i'+uid();state.images[id]=await toDataURL(f,720);ui.draft.images.push(id)}catch(err){}}
+      ui.sheet.status='';render()}}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&(e.target.id==='rc-text'||e.target.id==='cm-text')){e.preventDefault();act(e.target.id==='rc-text'?'addMine':'addCm')}});
+document.addEventListener('focusin',e=>{if(e.target.id==='q'&&!ui.searching){ui.searching=true;const r=$('#results');if(r)r.innerHTML=resultsHTML();const c=$('#qcancel');if(c)c.hidden=false;document.querySelectorAll('.top .pill').forEach(x=>x.hidden=true)}});
+document.addEventListener('change',e=>{const g=e.target.closest&&e.target.closest('[data-gapi]');if(g){const L=state.threads[ui.acct]||[];const m=L[+g.dataset.gapi];if(m){m.gap=g.value.trim()||true;changed();render()}}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){ui.q=e.target.value;const r=$('#results');if(r)r.innerHTML=resultsHTML()}});
+document.addEventListener('click',e=>{
+  const ov=e.target.closest('.ov[data-close]');if(ov&&e.target===ov){ui.post=null;ui.armed=null;render();return}
+  const t=e.target.closest('[data-act],[data-go],[data-dm],[data-delmine],[data-h],[data-open],[data-like],[data-prev],[data-next],[data-delcm],[data-rmimg],[data-first]');
+  if(!t||!$('#app').contains(t))return;
+  const ds=t.dataset;
+  if(ds.h!==undefined){e.preventDefault();openHandle(ds.h);return}
+  if(ds.go){ui.post=null;go('profile',ds.go);return}
+  if(ds.dm){if(!ui.edit&&(state.unread||{})[ds.dm]){ui.readDm[ds.dm]=true;try{localStorage.setItem(LS+'sns-dmread-v1',JSON.stringify(ui.readDm))}catch(e){}}go('dm',ds.dm);return}
+  if(ds.open){ui.post=ds.open;ui.armed=null;render();return}
+  if(ds.like){ui.liked.has(ds.like)?ui.liked.delete(ds.like):ui.liked.add(ds.like);render();return}
+  if(ds.prev){ui.idx[ds.prev]=Math.max(0,(ui.idx[ds.prev]||0)-1);render();return}
+  if(ds.next){ui.idx[ds.next]=(ui.idx[ds.next]||0)+1;render();return}
+  if(ds.delmine){delCm(ds.delmine);return}
+  if(ds.delcm){const [,p]=findPost(ui.post);p.comments=p.comments.filter(c=>c.id!==ds.delcm);changed();render();return}
+  if(ds.rmimg){readForm();ui.draft.images.splice(+ds.rmimg,1);render();return}
+  if(ds.first){readForm();const [x]=ui.draft.images.splice(+ds.first,1);ui.draft.images.unshift(x);render();return}
+  act(ds.act,ds);
+});
+function act(a,ds){ds=ds||{};
+  switch(a){
+    case 'toggleEdit':ui.edit=!ui.edit;ui.armed=null;break;
+    case 'toTop':window.scrollTo({top:0,behavior:'smooth'});return;
+    case 'goHome':if(ui.view==='home'){window.scrollTo({top:0,behavior:'smooth'});return}go('home');return;
+    case 'goSearch':ui.searching=false;ui.q='';go('search');return;
+    case 'goMe':go('me');return;
+    case 'goFollowing':go('following');return;
+    case 'goInbox':ui.inboxSeen=true;try{localStorage.setItem(LS+'sns-inbox-seen','1')}catch(e){}go('inbox');return;
+    case 'goNotif':ui.notifSeen=true;try{localStorage.setItem(LS+'sns-notif-seen','1')}catch(e){}go('notif');return;
+    case 'cancelSearch':ui.searching=false;ui.q='';break;
+    case 'newNotif':ui.draft={from:'',time:'방금',text:'님이 회원님의 게시물을 좋아합니다.',post:''};ui.sheet={type:'notif'};ui.armed=null;break;
+    case 'editNotif':{const n=state.notifs.find(x=>x.id===ds.id);if(!n)return;ui.draft={...n};ui.sheet={type:'notif'};ui.armed=null;break}
+    case 'delNotif':if(ui.armed!=='notif'){readForm();ui.armed='notif';break}state.notifs=state.notifs.filter(n=>n.id!==ui.draft.id);ui.sheet=null;ui.draft=null;ui.armed=null;changed();break;
+    case 'openDm':go('dm',ui.acct);return;
+    case 'gapTh':{const L=state.threads[ui.acct]||[];const m=L[+ds.i];if(m){if(m.gap)delete m.gap;else m.gap=true;changed()}break}
+    case 'delTh':{const L=state.threads[ui.acct]||[];L.splice(+ds.i,1);changed();break}
+    case 'toggleUnread':{state.unread=state.unread||{};if(state.unread[ui.acct])delete state.unread[ui.acct];else state.unread[ui.acct]=true;changed();break}
+    case 'closeAlert':ui.alert=null;break;
+    case 'addMine':{const au=$('#rc-author').value.trim().replace(/\s+/g,''),tx=$('#rc-text').value.trim();if(!au||!tx){(au?$('#rc-text'):$('#rc-author')).focus();return}
+      ui.rname=au;try{localStorage.setItem(LS+'sns-rname',au)}catch(e){}postCm(ui.post,au,tx);return}
+    case 'back':back();return;
+    case 'closePost':ui.post=null;ui.armed=null;break;
+    case 'addCm':{const au=$('#cm-author').value.trim(),tx=$('#cm-text').value.trim();if(!au||!tx){(au?$('#cm-text'):$('#cm-author')).focus();return}
+      ui.lastAuthor=au;findPost(ui.post)[1].comments.push({id:'c'+uid(),author:au,text:tx});changed();break}
+    case 'editProfile':{const x=acctById(ds.id||ui.acct);ui.draft={handle:x.handle,name:x.name||'',bio:x.bio||'',followers:x.followers||'',following:x.following||'',link:x.link||'',avatar:x.avatar||'',dmHide:!!x.dmHide,dm:{...(x.dm||{mode:'reply',reply:''})}};ui.sheet={type:'profile',id:x.id};ui.armed=null;break}
+    case 'editLogo':ui.draft={appName:state.appName};ui.sheet={type:'logo'};break;
+    case 'editMe':ui.draft={...state.me,appName:state.appName};ui.sheet={type:'me'};break;
+    case 'newAcct':ui.draft={handle:'',name:'',bio:'',followers:'0',following:'0',link:'',avatar:'',dm:{mode:'reply',reply:''}};ui.sheet={type:'newAcct'};break;
+    case 'delAcctAsk':if(ui.armed!=='acct'){ui.armed='acct';break}
+      state.accounts=state.accounts.filter(x=>x.id!==ui.acct);ui.armed=null;changed();ui.stack=[];ui.view='home';ui.acct=null;setHash();break;
+    case 'newPost':ui.draft={acct:ui.view==='profile'?ui.acct:ui.view==='me'&&state.meId?state.meId:(state.accounts[0]||{}).id,images:[],caption:'',date:new Date().toISOString().slice(0,10),likes:'0',location:'',comments:[]};ui.sheet={type:'post'};break;
+    case 'editPost':{const [,p]=findPost(ui.post);ui.draft={...p,images:[...p.images]};ui.sheet={type:'post',edit:true};break}
+    case 'delPost':if(ui.armed!=='post'){ui.armed='post';break}
+      {const [x]=findPost(ui.post);x.posts=x.posts.filter(p=>p.id!==ui.post);ui.post=null;ui.armed=null;changed();break}
+    case 'cancelSheet':ui.sheet=null;ui.draft=null;ui.armed=null;break;
+    case 'openStory':openStory(ds.id);return;
+    case 'closeStory':closeStory();return;
+    case 'editStories':{const x=acctById(ds.id);ui.draft={acct:x.id,list:(x.stories||[]).map(t=>({...t}))};ui.sheet={type:'stories'};break}
+    case 'stUp':{readForm();const i=+ds.i;const L=ui.draft.list;[L[i-1],L[i]]=[L[i],L[i-1]];break}
+    case 'stAddShare':readForm();ui.draft.list.push({id:'s'+uid(),share:'',img:'',sbg:'#f2a7b8',stext:'',bg:'#2b2b2b',dur:5,time:'방금',text:'ㄳ'});break;
+    case 'stNoImg':readForm();ui.draft.list[+ds.i].img='';break;
+    case 'stAddText':readForm();ui.draft.list.push({id:'s'+uid(),img:'',bg:'#1f2a44',dur:5,time:'방금',text:''});break;
+    case 'stDel':readForm();ui.draft.list.splice(+ds.i,1);break;
+    case 'stPreview':{readForm();const id=ui.draft.acct;commitStories();if(acctById(id).stories.length)openStory(id);else render();return}
+    case 'save':save();return;
+    default:return;
+  }
+  render();
+}
+
+/* ---------- save ---------- */
+function gcImages(){
+  const used=new Set();state.accounts.forEach(a=>{if(a.avatar)used.add(a.avatar);a.posts.forEach(p=>p.images.forEach(i=>used.add(i)));(a.stories||[]).forEach(t=>used.add(t.img))});
+  if(ui.draft){if(ui.draft.avatar)used.add(ui.draft.avatar);(ui.draft.images||[]).forEach(i=>used.add(i));(ui.draft.list||[]).forEach(t=>used.add(t.img))}
+  Object.keys(state.images).forEach(k=>{if(!used.has(k))delete state.images[k]});
+}
+function buildDoc(){
+  const json=JSON.stringify({...state,savedAt:new Date().toISOString()}).replace(/</g,'\\u003c');
+  return SKELETON+TOP_HTML+'<style id="app-style">'+STYLE+'</style>\n<div id="app"></div>\n<script type="application/json" id="state">'+json+'<\/script>\n<script id="app-script">'+SCRIPT+'<\/script></body></html>';
+}
+async function save(){
+  if(!ui.art||ui.saving)return;
+  gcImages();const doc=buildDoc();
+  if(doc.length>15.5e6){ui.msg='사진 용량이 너무 커서 저장할 수 없어요. 사진 몇 장을 지워 주세요.';render();return}
+  ui.saving=true;render();
+  try{sessionStorage.setItem('sns-pending',JSON.stringify(state))}catch(e){}
+  try{await ui.art.publish(doc);try{sessionStorage.removeItem('sns-pending')}catch(e){}}
+  catch(e){ui.saving=false;const c=e&&e.code;
+    if(c==='conflict')ui.msg='다른 곳에서 먼저 저장되어 최신 버전을 불러와요.';
+    else if(c==='not_writer'||c==='not_granted'||c==='capability_disabled'){ui.canEdit=false;ui.edit=false;ui.dirty=false;ui.msg=''}
+    else if(c==='rate_limited')ui.msg='저장 요청이 많아요. 잠시 후 다시 저장해 주세요.';
+    else ui.msg='저장하지 못했어요. 잠시 후 다시 눌러 주세요.';
+    render()}
+}
+
+/* ---------- boot ---------- */
+const h=(location.hash||'').slice(1);
+if(h==='search'||h==='me'||h==='following'||h==='inbox'||h==='notif')ui.view=h;
+else if(acctById(h)){ui.view='profile';ui.acct=h}
+render();
+loadSettings();loadCm();loadRemoteDm();
+(async()=>{try{
+  if(!window.claude||!claude.use)return;
+  const [art,usr]=await Promise.all([claude.use('artifact'),claude.use('user')]);
+  if(!art||!usr)return;if(!(await usr.canEdit()))return;
+  ui.art=art;ui.canEdit=true;
+  try{const pend=sessionStorage.getItem('sns-pending');if(pend){const ps=JSON.parse(pend);sessionStorage.removeItem('sns-pending');
+    if(JSON.stringify(ps.accounts)!==JSON.stringify(state.accounts)||JSON.stringify(ps.me)!==JSON.stringify(state.me)){state=ps;ui.dirty=true;ui.edit=true;ui.msg='저장되지 않은 변경사항을 되살렸어요. 다시 저장해 주세요.'}}}catch(e){}
+  render();
+}catch(e){}})();
+})();
+</script>
+</body></html>

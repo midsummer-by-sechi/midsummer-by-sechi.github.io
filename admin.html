@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>관리 페이지</title>
+<style>
+:root{--bg:#fafafa;--card:#fff;--fg:#111;--muted:#737373;--line:#e3e3e3;--accent:#1d3a8a;--danger:#c0392b;--me:#3c64e6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e10;--card:#18181b;--fg:#f2f2f2;--muted:#9a9aa2;--line:#2c2c31;--accent:#8fb0ff;--danger:#ff7b6b;--me:#4c74f0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;margin:4px 0 16px}
+h2{font-size:17px;margin:0 0 10px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 16px}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 10px}
+input,textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-top:4px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:9px;padding:7px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{color:var(--danger)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.tabs button.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.cm{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.cm:first-child{border-top:0}
+.cm img{width:48px;height:48px;object-fit:cover;border-radius:6px;background:var(--line)}
+.cm b{font-weight:600}
+.cm .acts{display:flex;gap:6px;margin-top:6px}
+.reader{border-top:1px solid var(--line);padding:12px 0}
+.reader:first-child{border-top:0}
+.thread{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.b{max-width:78%;padding:7px 12px;border-radius:18px;background:var(--line);align-self:flex-start;white-space:pre-wrap;word-break:break-word}
+.b.me{background:var(--me);color:#fff;align-self:flex-end}
+.msg{min-height:20px;font-size:13px;color:var(--muted)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>한여름 밤의 꿈 · 관리</h1>
+
+<section id="login">
+  <h2>관리자 로그인</h2>
+  <form id="lf">
+    <label>이메일<input id="em" type="email" autocomplete="username" required></label>
+    <label>비밀번호<input id="pw" type="password" autocomplete="current-password" required></label>
+    <div class="row"><button class="primary">로그인</button><span class="msg" id="lmsg"></span></div>
+  </form>
+</section>
+
+<div id="panel" hidden>
+  <div class="row" style="justify-content:space-between;margin:0 0 12px"><span class="muted" id="who"></span><button id="out">로그아웃</button></div>
+
+  <section>
+    <h2>상단 로고 글자</h2>
+    <label>독자용 SNS<input id="app-reader" maxlength="40"></label>
+    <label>이안의 SNS<input id="app-ian" maxlength="40"></label>
+    <div class="row"><button class="primary" id="save-app">저장</button><span class="msg" id="amsg"></span></div>
+  </section>
+
+  <section>
+    <h2>독자 댓글</h2>
+    <div class="tabs" id="cm-tabs"><button data-site="reader" class="on">독자용 SNS</button><button data-site="ian">이안의 SNS</button></div>
+    <div id="cms"><p class="muted">불러오는 중…</p></div>
+  </section>
+
+  <section>
+    <h2>독자들이 지우에게 보낸 DM</h2>
+    <p class="muted" style="margin-top:-4px">이안의 SNS에서 독자가 이안이 되어 보낸 메시지예요. 독자 본인과 관리자만 볼 수 있어요.</p>
+    <div id="dms"><p class="muted">불러오는 중…</p></div>
+  </section>
+</div>
+</main>
+<script src="vendor/supabase.js"></script>
+<script>
+(function(){
+const SB=window.supabase.createClient('https://casrgrsudvyddxxjhron.supabase.co','sb_publishable_HAeJK5TfpsrhxzCmpkU2XA_HYefYMla');
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const when=t=>{const d=new Date(t);return `${d.getMonth()+1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+let posts={},cmSite='reader',cmRows=[];
+fetch('data/posts.json').then(r=>r.json()).then(j=>{posts=j;renderCms()}).catch(()=>{});
+
+async function start(){
+  const {data}=await SB.auth.getSession();const u=data.session&&data.session.user;
+  if(!u||u.is_anonymous){$('#login').hidden=false;$('#panel').hidden=true;return}
+  const {data:adm}=await SB.from('admins').select('user_id').eq('user_id',u.id).maybeSingle();
+  if(!adm){$('#lmsg').textContent='관리자로 등록되지 않은 계정이에요.';await SB.auth.signOut();$('#login').hidden=false;$('#panel').hidden=true;return}
+  $('#login').hidden=true;$('#panel').hidden=false;$('#who').textContent=u.email+' 로 로그인됨';
+  loadApp();loadCms();loadDms();
+}
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#lmsg').textContent='로그인 중…';
+  const {error}=await SB.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+  if(error){$('#lmsg').textContent='이메일이나 비밀번호가 맞지 않아요.';return}$('#lmsg').textContent='';start()};
+$('#out').onclick=async()=>{await SB.auth.signOut();location.reload()};
+
+async function loadApp(){const {data}=await SB.from('settings').select('site,app_name');(data||[]).forEach(r=>{const i=$('#app-'+r.site);if(i)i.value=r.app_name})}
+$('#save-app').onclick=async()=>{$('#amsg').textContent='저장 중…';
+  for(const site of ['reader','ian']){const v=$('#app-'+site).value.trim()||'midsummer';
+    const {error}=await SB.from('settings').update({app_name:v,updated_at:new Date().toISOString()}).eq('site',site);
+    if(error){$('#amsg').textContent='저장하지 못했어요: '+error.message;return}}
+  $('#amsg').textContent='저장했어요. 페이지를 새로고침하면 바뀌어 있어요.'};
+
+$('#cm-tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;cmSite=b.dataset.site;document.querySelectorAll('#cm-tabs button').forEach(x=>x.classList.toggle('on',x===b));loadCms()};
+async function loadCms(){$('#cms').innerHTML='<p class="muted">불러오는 중…</p>';
+  const {data,error}=await SB.from('comments').select('id,post_id,author,text,created_at').eq('site',cmSite).order('created_at',{ascending:false}).limit(1000);
+  if(error){$('#cms').innerHTML='<p class="muted">불러오지 못했어요.</p>';return}cmRows=data;renderCms()}
+function renderCms(){if(!$('#cms'))return;if(!cmRows.length){$('#cms').innerHTML='<p class="muted">아직 독자 댓글이 없어요.</p>';return}
+  const P=posts[cmSite]||{};
+  $('#cms').innerHTML=cmRows.map(c=>{const p=P[c.post_id]||{};return `<div class="cm" data-id="${c.id}">${p.thumb?`<img src="${esc(p.thumb)}" alt="">`:'<img alt="">'}<div>
+    <div class="muted">${esc(p.acct||'')} 게시물${p.caption?` · ${esc(p.caption)}`:''} · ${when(c.created_at)}</div>
+    <div class="view"><b>${esc(c.author)}</b> ${esc(c.text)}</div>
+    <div class="acts"><button data-a="edit">수정</button><button class="danger" data-a="del">삭제</button></div></div></div>`}).join('')}
+$('#cms').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const box=b.closest('.cm');const id=box.dataset.id;const c=cmRows.find(x=>x.id===id);
+  if(b.dataset.a==='del'){if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='한 번 더 누르면 삭제';return}
+    const {error}=await SB.from('comments').delete().eq('id',id);if(error){b.textContent='실패';return}loadCms();return}
+  if(b.dataset.a==='edit'){box.querySelector('.view').innerHTML=`<input class="ea" value="${esc(c.author)}" maxlength="30"><textarea class="et" maxlength="300" rows="2">${esc(c.text)}</textarea>`;
+    b.dataset.a='save';b.textContent='저장';return}
+  if(b.dataset.a==='save'){const author=box.querySelector('.ea').value.trim(),text=box.querySelector('.et').value.trim();if(!author||!text)return;
+    const {error}=await SB.from('comments').update({author,text}).eq('id',id);if(error){b.textContent='실패';return}loadCms()}};
+
+async function loadDms(){const {data,error}=await SB.from('dms').select('reader,from_me,text,created_at').eq('thread','jiwoo').order('created_at',{ascending:true}).limit(10000);
+  if(error){$('#dms').innerHTML='<p class="muted">불러오지 못했어요.</p>';return}
+  if(!data.length){$('#dms').innerHTML='<p class="muted">아직 보낸 독자가 없어요.</p>';return}
+  const g=new Map();data.forEach(r=>{if(!g.has(r.reader))g.set(r.reader,[]);g.get(r.reader).push(r)});
+  const list=[...g.values()].sort((a,b)=>b[b.length-1].created_at.localeCompare(a[a.length-1].created_at));
+  $('#dms').innerHTML=`<p class="muted">독자 ${list.length}명</p>`+list.map((rows,n)=>`<div class="reader"><div class="row" style="justify-content:space-between"><b>독자 ${list.length-n}</b><span class="muted">${when(rows[0].created_at)} ~ ${when(rows[rows.length-1].created_at)} · 보낸 메시지 ${rows.filter(r=>r.from_me).length}개</span></div>
+    <div class="thread">${rows.map(r=>`<div class="b ${r.from_me?'me':''}">${esc(r.text)}</div>`).join('')}</div></div>`).join('')}
+
+start();
+})();
+</script>
+</body>
+</html>
