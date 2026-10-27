@@ -14,14 +14,47 @@ h1{font-size:26px;letter-spacing:-.02em;margin:0 0 6px}
 p{color:var(--muted);margin:0 0 28px}
 a{display:block;text-decoration:none;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 12px;font-weight:600}
 a small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.langs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:22px}
+.langs button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer}
+.langs button.on{color:var(--fg);border-color:var(--fg);font-weight:600}
 </style>
 </head>
 <body>
 <main>
 <h1>한여름 밤의 꿈</h1>
-<p>SNS로 보는 그 여름</p>
-<a href="reader/">독자의 SNS<small>세 사람의 계정을 둘러보세요</small></a>
-<a href="ian/">이안의 SNS<small>10월 7일, 이안의 휴대폰 속</small></a>
+<p data-t="sub">SNS로 보는 그 여름</p>
+<a href="reader/"><span data-t="r">독자의 SNS</span><small data-t="rs">세 사람의 계정을 둘러보세요</small></a>
+<a href="ian/"><span data-t="i">이안의 SNS</span><small data-t="is">10월 9일, 이안의 휴대폰 속</small></a>
+<div class="langs" id="langs"></div>
 </main>
+<script>
+(function(){
+  const L=[['ko','한국어'],['en','English'],['ja','日本語'],['zh-Hans','简体中文'],['zh-Hant','繁體中文']];
+  const TX={ko:{sub:'SNS로 보는 그 여름',r:'독자의 SNS',rs:'세 사람의 계정을 둘러보세요',i:'이안의 SNS',is:'10월 9일, 이안의 휴대폰 속'},
+    en:{sub:'That summer, through social media',r:"The readers' feed",rs:'Look around three people\'s accounts',i:"Ian's feed",is:"October 9, inside Ian's phone"},
+    ja:{sub:'SNSで見る、あの夏',r:'読者のSNS',rs:'3人のアカウントをのぞいてみて',i:'イアンのSNS',is:'10月9日、イアンのスマホの中'},
+    'zh-Hans':{sub:'用社交网络看那个夏天',r:'读者的SNS',rs:'看看三个人的账号',i:'伊安的SNS',is:'10月9日，伊安的手机里'},
+    'zh-Hant':{sub:'用社群網路看那個夏天',r:'讀者的SNS',rs:'看看三個人的帳號',i:'伊安的SNS',is:'10月9日，伊安的手機裡'}};
+  let lang=null;try{lang=localStorage.getItem('ms-lang')}catch(e){}
+  if(!lang||!TX[lang]){const n=String(navigator.language||'ko').toLowerCase();lang=n.startsWith('ko')?'ko':n.startsWith('ja')?'ja':n.startsWith('zh')?(/tw|hk|mo|hant/.test(n)?'zh-Hant':'zh-Hans'):'en'}
+  function apply(){document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=TX[lang][el.dataset.t]});
+    document.documentElement.lang=lang==='zh-Hans'?'zh-CN':lang==='zh-Hant'?'zh-TW':lang;
+    document.getElementById('langs').innerHTML=L.map(([k,n])=>`<button data-l="${k}" class="${k===lang?'on':''}">${n}</button>`).join('')}
+  document.getElementById('langs').onclick=e=>{const b=e.target.closest('button');if(!b)return;lang=b.dataset.l;try{localStorage.setItem('ms-lang',lang)}catch(e){}apply()};
+  apply();
+})();
+</script>
+<script src="vendor/supabase.js"></script>
+<script>
+(async function(){try{
+  if(!window.supabase)return;
+  const SB=window.supabase.createClient('https://casrgrsudvyddxxjhron.supabase.co','sb_publishable_HAeJK5TfpsrhxzCmpkU2XA_HYefYMla');
+  const d=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);const k='home:visit-day';
+  try{if(localStorage.getItem(k)===d)return}catch(e){}
+  const {data}=await SB.auth.getSession();if(data&&data.session&&data.session.user&&!data.session.user.is_anonymous)return;
+  let v=null;try{v=localStorage.getItem('ms-visitor');if(!v){v=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('v'+Math.random().toString(36).slice(2)+Date.now().toString(36));localStorage.setItem('ms-visitor',v)}}catch(e){return}
+  const {error}=await SB.from('visits').insert({site:'home',visitor:v});if(!error||error.code==='23505'){try{localStorage.setItem(k,d)}catch(e){}}
+}catch(e){}})();
+</script>
 </body>
 </html>
